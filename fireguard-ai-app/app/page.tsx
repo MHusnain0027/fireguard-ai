@@ -1,207 +1,236 @@
 "use client";
 
 import { useState } from "react";
-import { locations } from "../data/locations";
+import Link from "next/link";
+import { locations } from "@/data/locations";
+import { uploadedLocations } from "@/data/uploaded";
 
 export default function Home() {
 
   const [search, setSearch] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [mode, setMode] = useState("all");
 
 
-  const totalLocations = locations.length;
-
-  const totalZones = new Set(
-    locations.map((item) => item.zone)
-  ).size;
-
+  const allLocations = [
+    ...locations,
+    ...uploadedLocations
+  ];
 
 
-  function searchAlarm() {
+  const results = search.trim()
+    ? allLocations.filter((item:any) => {
 
-    const query = search.toLowerCase().trim();
+        const code = item.code?.toLowerCase() || "";
+        const door = item.doorName?.toLowerCase() || "";
+        const zone = item.zone?.toLowerCase() || "";
 
-    const found = locations.find(
-      (item) =>
-        item.code.toLowerCase() === query ||
-        item.doorName.toLowerCase().includes(query)
-    );
+        const value = search.toLowerCase();
 
-    setResult(found || "notfound");
-  }
+
+        if(mode === "exact"){
+          return code === value;
+        }
+
+
+        if(mode === "partial"){
+          return code.includes(value);
+        }
+
+
+        return (
+          code.includes(value) ||
+          door.includes(value) ||
+          zone.includes(value)
+        );
+
+      })
+    : [];
 
 
 
   return (
 
-    <main className="min-h-screen bg-slate-950 text-white p-8">
+    <main
+      className="relative min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{
+        backgroundImage:"url('/fire-bg.jpg')"
+      }}
+    >
 
 
-      {/* Header */}
-
-      <h1 className="text-5xl font-bold text-center">
-        🔥 FireGuard AI
-      </h1>
-
-      <p className="text-center mt-3 text-gray-300">
-        AI Powered Fire Alarm Monitoring System
-      </p>
+      <div className="absolute inset-0 bg-black/70"></div>
 
 
 
-      {/* Dashboard Cards */}
-
-      <div className="grid md:grid-cols-3 gap-5 mt-10">
+      <div className="relative z-10 w-[720px] bg-black/80 backdrop-blur-xl rounded-3xl p-10 border border-green-500/20">
 
 
-        <div className="bg-slate-800 p-6 rounded-xl">
+        <h1 className="text-center text-5xl font-bold text-green-400">
+          FACP SEARCH SYSTEM
+        </h1>
 
-          <h2 className="text-orange-400 text-xl">
-            System Status
-          </h2>
 
-          <p className="text-green-400 text-3xl mt-3 font-bold">
-            🟢 ONLINE
-          </p>
+        <p className="text-center text-gray-400 mt-3 text-xl">
+          Building Information Database
+        </p>
+
+
+
+        <div className="flex gap-3 mt-10">
+
+
+          <input
+            className="flex-1 p-5 rounded-xl text-black text-xl"
+            placeholder="Search code / room / zone..."
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+          />
+
+
+          <button className="bg-green-500 px-10 rounded-xl font-bold">
+            SEARCH
+          </button>
+
 
         </div>
 
 
 
-        <div className="bg-slate-800 p-6 rounded-xl">
 
-          <h2 className="text-orange-400 text-xl">
-            Total Zones
-          </h2>
+        <div className="flex gap-3 justify-center mt-5">
 
-          <p className="text-4xl mt-3 font-bold">
-            {totalZones}
-          </p>
+
+          <button
+          onClick={()=>setMode("all")}
+          className="bg-green-500 px-5 py-2 rounded-full">
+
+            All
+
+          </button>
+
+
+
+          <button
+          onClick={()=>setMode("exact")}
+          className="border border-green-500 text-green-400 px-5 py-2 rounded-full">
+
+            Exact Code
+
+          </button>
+
+
+
+          <button
+          onClick={()=>setMode("partial")}
+          className="border border-green-500 text-green-400 px-5 py-2 rounded-full">
+
+            Partial
+
+          </button>
+
 
         </div>
 
 
 
 
-        <div className="bg-slate-800 p-6 rounded-xl">
 
-          <h2 className="text-orange-400 text-xl">
-            Total FACP Locations
-          </h2>
-
-          <p className="text-4xl mt-3 font-bold">
-            {totalLocations}
-          </p>
-
-        </div>
+        <div className="mt-8 max-h-80 overflow-y-auto">
 
 
-      </div>
+        {results.map((item:any,index)=>(
+
+          <div
+          key={index}
+          className="bg-gray-900 p-4 rounded-xl mb-3 border border-green-500/20">
 
 
-
-
-
-      {/* Search Section */}
-
-
-      <div className="max-w-xl mx-auto mt-12">
-
-
-        <h2 className="text-3xl font-bold mb-5">
-          🔎 Alarm Location Search
-        </h2>
-
-
-
-        <input
-
-          className="w-full p-4 text-black rounded-lg"
-
-          placeholder="Enter FACP Code or Door Name"
-
-          value={search}
-
-          onChange={(e)=>setSearch(e.target.value)}
-
-        />
-
-
-
-        <button
-
-          onClick={searchAlarm}
-
-          className="mt-4 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg"
-
-        >
-
-          Search Location
-
-        </button>
-
-
-
-
-
-
-        {/* Result Card */}
-
-
-        {result && result !== "notfound" && (
-
-          <div className="bg-slate-800 p-6 mt-8 rounded-xl border border-red-500">
-
-
-            <h2 className="text-2xl text-red-400 mb-5 font-bold">
-              🚨 Alarm Location Found
-            </h2>
-
-
-
-            <p className="text-lg">
-              🔢 S/NO: {result.sno}
+            <p className="text-green-400 font-bold">
+              {item.code || "NO CODE"}
             </p>
 
 
-            <p className="text-lg">
-              🔥 FACP Code: {result.code}
+            <p className="text-white">
+              {item.doorName || "Unknown Location"}
             </p>
 
 
-            <p className="text-lg">
-              📍 Zone: {result.zone}
+            <p className="text-gray-400">
+              {item.zone || "No Zone"}
             </p>
-
-
-            <p className="text-lg">
-              🚪 Door Name: {result.doorName}
-            </p>
-
 
 
           </div>
 
-        )}
+        ))}
+
+
+        </div>
 
 
 
 
 
+        {/* Admin & Report Buttons */}
 
-        {result === "notfound" && (
+        <div className="flex flex-col items-center gap-5 mt-10">
 
-          <div className="bg-red-900 p-5 mt-6 rounded-lg">
 
-            ❌ Location Not Found
+          <Link href="/admin">
+
+            <button
+            className="bg-gray-800 text-gray-300 px-12 py-3 rounded-lg hover:bg-gray-700">
+
+              🔐 Admin Panel
+
+            </button>
+
+          </Link>
+
+
+
+          <button
+          className="border border-green-500 text-green-400 px-8 py-3 rounded-lg hover:bg-green-500 hover:text-black">
+
+            📋 Create Patrolling Reports
+
+          </button>
+
+
+        </div>
+
+
+
+
+
+        <p className="text-center text-gray-400 mt-10">
+
+          Type something to search...
+
+        </p>
+
+
+
+
+        <div className="flex justify-center mt-8">
+
+
+          <div className="border border-green-500 px-8 py-3 rounded-full">
+
+            <span className="text-green-400 font-bold">
+
+              MADE BY ARSLAN
+
+            </span>
 
           </div>
 
-        )}
+
+        </div>
+
 
 
       </div>
-
 
 
     </main>

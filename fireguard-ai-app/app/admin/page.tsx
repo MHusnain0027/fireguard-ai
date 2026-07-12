@@ -1,316 +1,202 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/app/lib/firebase";
 
+export default function AdminPage(){
 
-export default function LoginPage() {
+const router = useRouter();
 
+const [checking,setChecking]=useState(true);
 
-  const router = useRouter();
 
+useEffect(()=>{
 
-  const [email,setEmail] = useState("");
 
-  const [password,setPassword] = useState("");
+const admin = localStorage.getItem(
+"fireguard_admin"
+);
 
-  const [error,setError] = useState("");
 
-  const [loading,setLoading] = useState(false);
+if(!admin){
 
+router.push("/login");
 
+}
 
+else{
 
+setChecking(false);
 
-  async function login(){
+}
 
 
-    setError("");
+},[]);
 
-    setLoading(true);
 
 
+function logout(){
 
-    try {
+localStorage.removeItem(
+"fireguard_admin"
+);
 
+router.push("/login");
 
-      const userCredential = await signInWithEmailAndPassword(
+}
 
-        auth,
 
-        email,
 
-        password
 
-      );
+if(checking){
 
+return(
 
+<main className="min-h-screen flex items-center justify-center bg-black">
 
-      localStorage.setItem(
+<h1 className="text-green-400 text-3xl font-bold">
 
-        "fireguard_admin",
+Checking Access...
 
-        userCredential.user.email || ""
+</h1>
 
-      );
+</main>
 
+)
 
+}
 
-      router.push("/admin");
 
 
+return(
 
-    }
+<main
 
+className="relative min-h-screen bg-cover bg-center p-6"
 
-    catch(error:any){
+style={{
 
+backgroundImage:"url('/fire-bg.jpg')"
 
-      setError(
+}}
 
-        "❌ Invalid Email or Password"
+>
 
-      );
 
+<div className="absolute inset-0 bg-black/60"></div>
 
-      setLoading(false);
 
 
-    }
+<div className="relative z-10 max-w-4xl mx-auto">
 
 
-  }
 
+<div className="bg-white/10 backdrop-blur-xl border border-green-400/30 rounded-3xl p-10">
 
 
+<h1 className="text-5xl text-center font-bold text-green-400">
 
+🔐 FireGuard AI Admin Panel
 
+</h1>
 
 
-  return (
 
+<p className="text-center text-gray-300 mt-4">
 
-    <main
+Manage Fire Alarm Database
 
-      className="relative min-h-screen flex items-center justify-center bg-cover bg-center p-5"
+</p>
 
-      style={{
 
-        backgroundImage:"url('/fire-bg.jpg')"
 
-      }}
 
-    >
+<div className="mt-10 grid md:grid-cols-2 gap-5">
 
 
 
-      <div className="absolute inset-0 bg-black/60"></div>
+<Link href="/">
 
+<div className="bg-green-500/20 border border-green-400 rounded-xl p-8 text-center hover:bg-green-500/40 cursor-pointer">
 
+<h2 className="text-3xl">
 
+🏠
 
+</h2>
 
-      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl border border-green-500/40 rounded-3xl p-10 shadow-2xl">
+<p className="text-white font-bold mt-3">
 
+Dashboard
 
+</p>
 
 
+</div>
 
-        <div className="text-center">
+</Link>
 
 
-          <p className="text-green-300 tracking-[5px] text-sm uppercase">
 
-            FireGuard AI
 
-          </p>
 
 
+<Link href="/admin">
 
+<div className="bg-blue-500/20 border border-blue-400 rounded-xl p-8 text-center">
 
-          <h1 className="text-4xl font-bold text-green-400 mt-3">
 
-            🔐 Admin Login
+<h2 className="text-3xl">
 
-          </h1>
+📂
 
+</h2>
 
 
+<p className="text-white font-bold mt-3">
 
-          <p className="text-gray-300 mt-3">
+Upload Database
 
-            Firebase Secure Authentication
+</p>
 
-          </p>
 
+</div>
 
-        </div>
+</Link>
 
 
 
+</div>
 
 
 
 
-        <input
+<button
 
+onClick={logout}
 
-          placeholder="Enter Email"
+className="mt-10 w-full bg-red-500 text-white py-4 rounded-xl font-bold"
 
+>
 
-          className="mt-8 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
+🚪 Logout
 
+</button>
 
-          value={email}
 
 
-          onChange={(e)=>setEmail(e.target.value)}
+</div>
 
 
-        />
 
+</div>
 
 
+</main>
 
 
-
-
-        <input
-
-
-          placeholder="Enter Password"
-
-
-          type="password"
-
-
-          className="mt-4 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
-
-
-          value={password}
-
-
-          onChange={(e)=>setPassword(e.target.value)}
-
-
-        />
-
-
-
-
-
-
-        <button
-
-
-          onClick={login}
-
-
-          className="mt-6 w-full bg-green-500 text-black font-bold py-4 rounded-xl hover:bg-green-400 transition hover:scale-105"
-
-
-        >
-
-
-          {
-
-
-            loading
-
-            ? "Checking..."
-
-            : "🚀 Login"
-
-
-          }
-
-
-        </button>
-
-        
-
-
-
-
-        <div className="text-center mt-5">
-
-
-          <Link
-
-            href="/forgot-password"
-
-            className="text-green-300 hover:text-green-400 underline"
-
-          >
-
-            Forgot Password?
-
-          </Link>
-
-
-        </div>
-
-
-
-
-
-
-        {
-
-
-          error &&
-
-
-          <div className="mt-5 bg-red-500/20 border border-red-400 rounded-xl p-3">
-
-
-            <p className="text-red-300 text-center">
-
-              {error}
-
-            </p>
-
-
-          </div>
-
-
-        }
-
-
-
-
-
-
-
-
-        <div className="text-center mt-8">
-
-
-          <p className="text-gray-400 text-sm">
-
-            FireGuard AI Secure System
-
-          </p>
-
-
-        </div>
-
-
-
-
-
-      </div>
-
-
-
-
-    </main>
-
-
-  );
+)
 
 
 }

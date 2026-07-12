@@ -85,13 +85,7 @@ export default function Home() {
 
 
 
-  const allLocations = [
-
-    ...locations,
-
-    ...databaseLocations
-
-  ];
+  const allLocations = databaseLocations;
 
 
 
@@ -103,20 +97,21 @@ export default function Home() {
 
 
       const code =
-      item.code?.toLowerCase() || "";
+      (item.Code || item.code || "").toLowerCase();
 
 
       const door =
       (
-        item.doorName ||
+        item.Door_Name ||
         item.door_name ||
+        item.doorName ||
         ""
       ).toLowerCase();
 
 
 
       const zone =
-      item.zone?.toLowerCase() || "";
+      (item.Zone || item.zone || "").toLowerCase();
 
 
 
@@ -124,11 +119,11 @@ export default function Home() {
       search.toLowerCase();
 
       const districtCode =
-item.district_code?.toLowerCase() || "";
+(item.District_Code || item.district_code || "").toLowerCase();
 
 
 const districtName =
-item.district_name?.toLowerCase() || "";
+(item.District_Name || item.district_name || "").toLowerCase();
 
 
 
@@ -437,21 +432,21 @@ return (
 
               <p className="text-green-400 font-bold text-xl">
 
-                {item.code || "NO CODE"}
+                {item.Code || item.code || "NO CODE"}
 
               </p>
 
 
               <p className="text-yellow-300 font-bold mt-2">
 
-🏢 {item.district_name || "No District"}
+🏢 {item.District_Name || item.district_name || "No District"}
 
 </p>
 
 
 <p className="text-gray-300">
 
-District Code: {item.district_code || "N/A"}
+District Code: {item.District_Code || item.district_code || "N/A"}
 
 </p>
 
@@ -459,7 +454,7 @@ District Code: {item.district_code || "N/A"}
 
               <p className="text-white">
 
-                {item.door_name || item.doorName || "Unknown Location"}
+                {item.Door_Name || item.door_name || item.doorName || "Unknown Location"}
 
               </p>
 
@@ -467,7 +462,7 @@ District Code: {item.district_code || "N/A"}
 
               <p className="text-gray-300">
 
-                {item.zone || "No Zone"}
+                {item.Zone || item.zone || "No Zone"}
 
               </p>
 

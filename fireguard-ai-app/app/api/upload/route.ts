@@ -5,187 +5,131 @@ import { supabase } from "@/app/lib/supabase";
 
 export async function POST(req: Request) {
 
+try {
 
-  try {
 
+const formData = await req.formData();
 
-    const formData = await req.formData();
+const file = formData.get("file") as File;
 
 
-    const file = formData.get("file") as File;
+if(!file){
 
+return NextResponse.json({
+success:false,
+message:"No file selected"
+});
 
+}
 
-    if(!file){
 
-      return NextResponse.json({
 
-        success:false,
+const bytes = await file.arrayBuffer();
 
-        message:"No file selected"
+const buffer = Buffer.from(bytes);
 
-      });
 
-    }
 
+const workbook = XLSX.read(buffer,{
+type:"buffer"
+});
 
 
+const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    const bytes = await file.arrayBuffer();
 
+const excelData:any[] =
+XLSX.utils.sheet_to_json(sheet);
 
-    const buffer = Buffer.from(bytes);
 
 
+const locations = excelData.map((row:any)=>({
 
+sno:
+String(row.SNO || ""),
 
-    const workbook = XLSX.read(buffer, {
 
-      type:"buffer"
+district_code:
+String(row["District Code"] || ""),
 
-    });
 
+district_name:
+row["District Name"] || "",
 
 
+code:
+row.Code || "",
 
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
+door_name:
+row["Door Name"] || "",
 
 
-    const excelData:any[] = XLSX.utils.sheet_to_json(sheet);
+zone:
+row.Zone || ""
 
 
+}));
 
 
-    if(excelData.length === 0){
 
-      return NextResponse.json({
 
-        success:false,
+// delete old data
 
-        message:"Excel file is empty"
+await supabase
+.from("locations")
+.delete()
+.neq("id",0);
 
-      });
 
-    }
 
+// insert new data
 
+const {error} =
+await supabase
+.from("locations")
+.insert(locations);
 
 
-    const locations = excelData.map((row:any)=>({
 
+if(error){
 
-      sno:
+return NextResponse.json({
 
-      String(
-        row.SNO ||
-        row.sno ||
-        ""
-      ),
+success:false,
 
+message:error.message
 
+});
 
-      zone:
+}
 
-      row.Zone ||
-      row.zone ||
-      "",
 
 
+return NextResponse.json({
 
-      door_name:
+success:true,
 
-      row["Door Name"] ||
-      row.doorName ||
-      "",
+total:locations.length
 
+});
 
 
-      code:
 
-      row.Code ||
-      row.code ||
-      ""
+}
 
+catch(error:any){
 
-    }));
+return NextResponse.json({
 
+success:false,
 
+message:error.message
 
+});
 
 
-    // Remove old database records
-
-    await supabase
-
-    .from("locations")
-
-    .delete()
-
-    .neq("id",0);
-
-
-
-
-
-    // Insert new records
-
-    const {error} = await supabase
-
-    .from("locations")
-
-    .insert(locations);
-
-
-
-
-
-    if(error){
-
-
-      return NextResponse.json({
-
-        success:false,
-
-        message:error.message
-
-      });
-
-
-    }
-
-
-
-
-
-    return NextResponse.json({
-
-      success:true,
-
-      total:locations.length
-
-    });
-
-
-
-
-  }
-
-  catch(error:any){
-
-
-
-    return NextResponse.json({
-
-      success:false,
-
-      message:error.message
-
-    });
-
-
-
-  }
+}
 
 
 }

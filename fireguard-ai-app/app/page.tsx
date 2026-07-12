@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { locations } from "@/data/locations";
-import { uploadedLocations } from "@/data/uploaded";
+import { supabase } from "@/app/lib/supabase";
 
 
 export default function Home() {
@@ -17,6 +17,7 @@ export default function Home() {
 
   const [incidents,setIncidents] = useState(0);
 
+  const [databaseLocations,setDatabaseLocations] = useState<any[]>([]);
 
 
 
@@ -26,33 +27,51 @@ export default function Home() {
     const timer = setInterval(()=>{
 
       setTime(
-
         new Date().toLocaleString()
-
       );
-
 
     },1000);
 
 
 
-
     const saved = localStorage.getItem(
-
       "fireguard_incidents"
-
     );
 
 
     if(saved){
 
       setIncidents(
-
         JSON.parse(saved).length
-
       );
 
     }
+
+
+
+
+    async function loadLocations(){
+
+
+      const {data,error}=await supabase
+
+      .from("locations")
+
+      .select("*");
+
+
+
+      if(data){
+
+        setDatabaseLocations(data);
+
+      }
+
+
+    }
+
+
+    loadLocations();
 
 
 
@@ -66,17 +85,13 @@ export default function Home() {
 
 
 
-
-
   const allLocations = [
 
     ...locations,
 
-    ...uploadedLocations
+    ...databaseLocations
 
   ];
-
-
 
 
 
@@ -87,13 +102,26 @@ export default function Home() {
   ? allLocations.filter((item:any)=>{
 
 
-      const code = item.code?.toLowerCase() || "";
+      const code =
+      item.code?.toLowerCase() || "";
 
-      const door = item.doorName?.toLowerCase() || "";
 
-      const zone = item.zone?.toLowerCase() || "";
+      const door =
+      (
+        item.doorName ||
+        item.door_name ||
+        ""
+      ).toLowerCase();
 
-      const value = search.toLowerCase();
+
+
+      const zone =
+      item.zone?.toLowerCase() || "";
+
+
+
+      const value =
+      search.toLowerCase();
 
 
 
@@ -107,11 +135,13 @@ export default function Home() {
 
 
 
+
       if(mode==="partial"){
 
         return code.includes(value);
 
       }
+
 
 
 
@@ -136,10 +166,7 @@ export default function Home() {
 
 
 
-
-
-  return (
-
+return (
 
     <main
 
@@ -154,15 +181,11 @@ export default function Home() {
     >
 
 
-
       <div className="absolute inset-0 bg-black/50"></div>
 
 
 
-
-
       <div className="relative z-10 max-w-6xl mx-auto">
-
 
 
 
@@ -188,13 +211,11 @@ export default function Home() {
 
 
 
-
           <p className="text-white text-2xl mt-2">
 
             FACP Search & Incident Management System
 
           </p>
-
 
 
 
@@ -206,17 +227,13 @@ export default function Home() {
           </p>
 
 
-
         </div>
 
 
 
 
 
-
-
         <div className="grid md:grid-cols-4 gap-5 mt-10">
-
 
 
           <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
@@ -242,10 +259,9 @@ export default function Home() {
 
             <h2 className="text-4xl text-green-400 font-bold">
 
-              {uploadedLocations.length}
+              {databaseLocations.length}
 
             </h2>
-
 
             <p className="text-white">
 
@@ -253,15 +269,12 @@ export default function Home() {
 
             </p>
 
-
           </div>
 
 
 
 
-
           <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-red-400/30">
-
 
             <h2 className="text-4xl text-red-400 font-bold">
 
@@ -269,22 +282,18 @@ export default function Home() {
 
             </h2>
 
-
             <p className="text-white">
 
               Incidents
 
             </p>
 
-
           </div>
 
 
 
 
-
           <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
-
 
             <h2 className="text-4xl text-green-400 font-bold">
 
@@ -292,20 +301,23 @@ export default function Home() {
 
             </h2>
 
-
             <p className="text-white">
 
               System Online
 
             </p>
 
-
           </div>
+
 
 
         </div>
 
-                <div className="mt-10 bg-white/10 backdropBlur-xl rounded-3xl p-8 border border-green-400/30">
+
+
+
+
+        <div className="mt-10 bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-green-400/30">
 
 
           <h2 className="text-3xl text-green-400 font-bold text-center">
@@ -326,37 +338,17 @@ export default function Home() {
 
 
 
-          <div className="flex gap-3 mt-8">
+          <input
 
+          className="w-full mt-8 p-5 rounded-xl bg-white text-black text-xl"
 
-            <input
+          placeholder="Search code / room / zone..."
 
-            className="flex-1 p-5 rounded-xl bg-white text-black text-xl"
+          value={search}
 
-            placeholder="Search code / room / zone..."
+          onChange={(e)=>setSearch(e.target.value)}
 
-            value={search}
-
-            onChange={(e)=>setSearch(e.target.value)}
-
-            />
-
-
-
-
-            <button
-
-            className="bg-green-500 px-10 rounded-xl text-black font-bold hover:bg-green-400 hover:scale-105 transition"
-
-            >
-
-              SEARCH
-
-            </button>
-
-
-          </div>
-
+          />
 
 
 
@@ -369,7 +361,7 @@ export default function Home() {
 
             onClick={()=>setMode("all")}
 
-            className="bg-green-500 text-black px-6 py-2 rounded-full font-bold hover:bg-green-400 hover:scale-105 transition"
+            className="bg-green-500 text-black px-6 py-2 rounded-full font-bold"
 
             >
 
@@ -380,12 +372,11 @@ export default function Home() {
 
 
 
-
             <button
 
             onClick={()=>setMode("exact")}
 
-            className="border border-green-400 text-green-300 px-6 py-2 rounded-full hover:bg-green-500 hover:text-black transition"
+            className="border border-green-400 text-green-300 px-6 py-2 rounded-full"
 
             >
 
@@ -396,12 +387,11 @@ export default function Home() {
 
 
 
-
             <button
 
             onClick={()=>setMode("partial")}
 
-            className="border border-green-400 text-green-300 px-6 py-2 rounded-full hover:bg-green-500 hover:text-black transition"
+            className="border border-green-400 text-green-300 px-6 py-2 rounded-full"
 
             >
 
@@ -410,9 +400,7 @@ export default function Home() {
             </button>
 
 
-
           </div>
-
 
 
 
@@ -431,8 +419,7 @@ export default function Home() {
 
             key={index}
 
-            className="bg-black/40 rounded-xl p-5 mb-3 border border-green-400/20 hover:border-green-400 transition"
-
+            className="bg-black/40 rounded-xl p-5 mb-3 border border-green-400/20"
 
             >
 
@@ -447,7 +434,7 @@ export default function Home() {
 
               <p className="text-white">
 
-                {item.doorName || "Unknown Location"}
+                {item.door_name || item.doorName || "Unknown Location"}
 
               </p>
 
@@ -460,9 +447,7 @@ export default function Home() {
               </p>
 
 
-
             </div>
-
 
 
           ))
@@ -470,13 +455,10 @@ export default function Home() {
           }
 
 
-
           </div>
 
 
-
         </div>
-
 
 
 
@@ -487,34 +469,21 @@ export default function Home() {
 
 
 
-
-
           <Link href="/fire-alarm-report">
 
+          <div className="bg-red-500/20 border border-red-400 rounded-2xl p-6 text-center hover:bg-red-500/40 cursor-pointer">
 
-            <div className="bg-red-500/20 border border-red-400 rounded-2xl p-6 text-center hover:bg-red-500/50 hover:scale-105 transition cursor-pointer">
+            <h2 className="text-3xl">🚨</h2>
 
+            <p className="text-white font-bold mt-3">
 
-              <h2 className="text-3xl">
+              Fire Alarm Report
 
-                🚨
+            </p>
 
-              </h2>
-
-
-              <p className="text-white font-bold mt-3">
-
-                Fire Alarm Report
-
-              </p>
-
-
-            </div>
-
+          </div>
 
           </Link>
-
-
 
 
 
@@ -522,30 +491,19 @@ export default function Home() {
 
           <Link href="/patrol">
 
+          <div className="bg-green-500/20 border border-green-400 rounded-2xl p-6 text-center hover:bg-green-500/40 cursor-pointer">
 
-            <div className="bg-green-500/20 border border-green-400 rounded-2xl p-6 text-center hover:bg-green-500/50 hover:scale-105 transition cursor-pointer">
+            <h2 className="text-3xl">📋</h2>
 
+            <p className="text-white font-bold mt-3">
 
-              <h2 className="text-3xl">
+              Patrol Report
 
-                📋
+            </p>
 
-              </h2>
-
-
-              <p className="text-white font-bold mt-3">
-
-                Patrol Report
-
-              </p>
-
-
-            </div>
-
+          </div>
 
           </Link>
-
-
 
 
 
@@ -553,36 +511,22 @@ export default function Home() {
 
           <Link href="/incidents">
 
+          <div className="bg-blue-500/20 border border-blue-400 rounded-2xl p-6 text-center hover:bg-blue-500/40 cursor-pointer">
 
-            <div className="bg-blue-500/20 border border-blue-400 rounded-2xl p-6 text-center hover:bg-blue-500/50 hover:scale-105 transition cursor-pointer">
+            <h2 className="text-3xl">📊</h2>
 
+            <p className="text-white font-bold mt-3">
 
-              <h2 className="text-3xl">
+              Incident History
 
-                📊
+            </p>
 
-              </h2>
-
-
-              <p className="text-white font-bold mt-3">
-
-                Incident History
-
-              </p>
-
-
-            </div>
-
+          </div>
 
           </Link>
 
 
-
-
-
-
         </div>
-
 
 
 
@@ -591,27 +535,22 @@ export default function Home() {
 
         <div className="flex justify-center mt-8">
 
-
           <Link href="/admin">
 
+          <button
 
-            <button
+          className="bg-white/20 border border-green-400 text-white px-12 py-3 rounded-xl hover:bg-green-500 hover:text-black transition"
 
-            className="bg-white/20 border border-green-400 text-white px-12 py-3 rounded-xl hover:bg-green-500 hover:text-black hover:scale-105 transition duration-300"
+          >
 
-            >
+            🔐 Admin Panel
 
-              🔐 Admin Panel
-
-            </button>
-
+          </button>
 
           </Link>
 
 
         </div>
-
-
 
 
 
@@ -631,30 +570,25 @@ export default function Home() {
 
 
 
-
           <a
 
-            href="https://wa.me/971505677023"
+          href="https://wa.me/971505677023"
 
-            target="_blank"
+          target="_blank"
 
-            className="inline-block mt-4 border border-green-400 px-8 py-3 rounded-full bg-white/10 hover:bg-green-500 hover:scale-105 transition duration-300 cursor-pointer"
+          className="inline-block mt-4 border border-green-400 px-8 py-3 rounded-full hover:bg-green-500/20 transition"
 
           >
 
 
+          <span className="text-green-400 font-bold">
 
-            <span className="text-green-400 font-bold hover:text-black">
+            Developed by Muhammad Husnain 💬
 
-              Developed by Muhammad Husnain 💬
-
-            </span>
-
+          </span>
 
 
           </a>
-
-
 
 
 
@@ -667,10 +601,7 @@ export default function Home() {
       </div>
 
 
-
-
     </main>
-
 
   );
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { locations } from "@/data/locations";
+
 import { supabase } from "@/app/lib/supabase";
 
 
@@ -19,7 +19,6 @@ export default function Home() {
 
   const [databaseLocations,setDatabaseLocations] = useState<any[]>([]);
 
-  console.log("SUPABASE DATA:", databaseLocations);
 
 
 
@@ -87,7 +86,7 @@ export default function Home() {
 
 
 
-  const allLocations = databaseLocations;
+ const allLocations = databaseLocations;
 
 
 

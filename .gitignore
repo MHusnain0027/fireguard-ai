@@ -1,6 +1,5 @@
 node_modules
 .next
-.envpackage.json
+.env
 package-lock.json
-node_modules/node_modules/
 *.log

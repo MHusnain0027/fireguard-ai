@@ -123,6 +123,13 @@ export default function Home() {
       const value =
       search.toLowerCase();
 
+      const districtCode =
+item.district_code?.toLowerCase() || "";
+
+
+const districtName =
+item.district_name?.toLowerCase() || "";
+
 
 
 
@@ -148,13 +155,17 @@ export default function Home() {
 
       return (
 
-        code.includes(value) ||
+code.includes(value) ||
 
-        door.includes(value) ||
+door.includes(value) ||
 
-        zone.includes(value)
+zone.includes(value) ||
 
-      );
+districtCode.includes(value) ||
+
+districtName.includes(value)
+
+);
 
 
 
@@ -429,6 +440,20 @@ return (
                 {item.code || "NO CODE"}
 
               </p>
+
+
+              <p className="text-yellow-300 font-bold mt-2">
+
+🏢 {item.district_name || "No District"}
+
+</p>
+
+
+<p className="text-gray-300">
+
+District Code: {item.district_code || "N/A"}
+
+</p>
 
 
 

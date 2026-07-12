@@ -3,177 +3,312 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function UploadPage(){
+export default function UploadPage() {
 
-const [file,setFile]=useState<File | null>(null);
-const [message,setMessage]=useState("");
+  const [file, setFile] = useState<File | null>(null);
 
+  const [message, setMessage] = useState("");
 
+  const [loading, setLoading] = useState(false);
 
-async function uploadExcel(){
 
-if(!file){
 
-setMessage("Please select Excel file");
+  async function uploadExcel() {
 
-return;
 
-}
+    if(!file){
 
+      setMessage("⚠️ Please select Excel database file first");
 
-const formData=new FormData();
+      return;
 
-formData.append(
-"file",
-file
-);
+    }
 
 
 
-const res = await fetch(
-"/api/upload",
-{
-method:"POST",
-body:formData
-}
-);
+    setLoading(true);
 
+    setMessage("");
 
-const data=await res.json();
 
 
+    try{
 
-if(data.success){
 
-setMessage(
-`✅ ${data.total} Records Imported Successfully`
-);
+      const formData = new FormData();
 
-}
-else{
 
-setMessage(
-"❌ Upload Failed"
-);
+      formData.append(
+        "file",
+        file
+      );
 
-}
 
 
+      const response = await fetch(
+        "/api/upload",
+        {
+          method:"POST",
+          body:formData
+        }
+      );
 
-}
 
 
+      const data = await response.json();
 
-return(
 
-<main
 
-className="relative min-h-screen bg-cover bg-center p-6"
 
-style={{
-backgroundImage:"url('/fire-bg.jpg')"
-}}
+      if(data.success){
 
->
 
+        setMessage(
+          `✅ Database Updated Successfully - ${data.total} Locations Added`
+        );
 
-<div className="absolute inset-0 bg-black/60"></div>
 
+      }
+      else{
 
 
-<div className="relative z-10 max-w-xl mx-auto mt-20">
+        setMessage(
+          "❌ Upload Failed. Please check Excel format"
+        );
 
 
-<div className="bg-white/10 backdrop-blur-xl border border-green-400/30 rounded-3xl p-10">
+      }
 
 
-<h1 className="text-4xl text-center text-green-400 font-bold">
 
-📂 Upload FACP Database
+    }
+    catch(error){
 
-</h1>
 
+      setMessage(
+        "❌ Server Error. Please try again"
+      );
 
-<p className="text-gray-300 text-center mt-3">
 
-Upload Excel Fire Alarm Location File
+    }
+    finally{
 
-</p>
 
+      setLoading(false);
 
 
-<input
+    }
 
-type="file"
 
-accept=".xlsx,.xls"
+  }
 
-className="mt-8 w-full bg-white text-black p-4 rounded-xl"
 
-onChange={(e)=>
-setFile(
-e.target.files?.[0] || null
-)
-}
 
-/>
 
 
+  return(
 
-<button
 
-onClick={uploadExcel}
+    <main
 
-className="mt-6 w-full bg-green-500 text-black font-bold py-4 rounded-xl"
+      className="relative min-h-screen bg-cover bg-center p-6"
 
->
+      style={{
 
-📤 Upload Database
+        backgroundImage:"url('/fire-bg.jpg')"
 
-</button>
+      }}
 
+    >
 
 
 
-{
-message &&
+      <div className="absolute inset-0 bg-black/60"></div>
 
-<p className="text-green-400 text-center mt-5 font-bold">
 
-{message}
 
-</p>
 
-}
+      <div className="relative z-10 max-w-3xl mx-auto pt-10">
 
 
 
-<Link href="/admin">
+        <div className="bg-white/10 backdrop-blur-2xl border border-blue-400/40 rounded-3xl p-10 shadow-2xl">
 
-<button
 
-className="mt-5 w-full border border-green-400 text-green-400 py-3 rounded-xl"
 
->
 
-⬅ Back Admin Panel
 
-</button>
+          <h1 className="text-4xl text-center font-bold text-blue-400">
 
-</Link>
+            📂 Upload FACP Database
 
+          </h1>
 
 
-</div>
 
 
-</div>
+          <p className="text-center text-gray-300 mt-3">
 
+            Admin Database Management System
 
+          </p>
 
-</main>
 
-)
+
+
+
+
+          <div className="mt-8 bg-black/30 rounded-2xl p-6 border border-blue-400/20">
+
+
+            <label className="text-white font-bold">
+
+              Select Excel File
+
+            </label>
+
+
+
+            <input
+
+              type="file"
+
+              accept=".xlsx,.xls"
+
+              className="mt-4 w-full bg-white text-black p-4 rounded-xl cursor-pointer"
+
+              onChange={(e)=>
+
+                setFile(
+                  e.target.files?.[0] || null
+                )
+
+              }
+
+            />
+
+
+
+            {
+
+              file &&
+
+              <p className="text-green-300 mt-3">
+
+                Selected: {file.name}
+
+              </p>
+
+            }
+
+
+          </div>
+
+
+
+
+
+
+
+          <button
+
+
+            onClick={uploadExcel}
+
+
+            disabled={loading}
+
+
+            className="mt-6 w-full bg-green-500 text-black font-bold py-4 rounded-xl hover:bg-green-400 transition disabled:bg-gray-400"
+
+
+          >
+
+
+            {
+
+              loading
+
+              ?
+
+              "⏳ Uploading..."
+
+              :
+
+              "📤 Upload Database"
+
+            }
+
+
+          </button>
+
+
+
+
+
+
+
+          {
+
+            message &&
+
+
+            <div className="mt-5 bg-black/40 rounded-xl p-4">
+
+
+              <p className="text-center text-green-300 font-bold">
+
+                {message}
+
+              </p>
+
+
+            </div>
+
+
+          }
+
+
+
+
+
+
+
+          <Link href="/admin">
+
+
+            <button
+
+
+              className="mt-6 w-full border border-blue-400 text-blue-300 py-3 rounded-xl hover:bg-blue-500/20 transition"
+
+
+            >
+
+              ⬅ Back Admin Dashboard
+
+            </button>
+
+
+          </Link>
+
+
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+    </main>
+
+
+  );
 
 
 }

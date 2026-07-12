@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/app/lib/firebase";
 
@@ -14,14 +13,10 @@ export default function LoginPage() {
 
 
   const [email,setEmail] = useState("");
-
   const [password,setPassword] = useState("");
 
   const [error,setError] = useState("");
-
   const [loading,setLoading] = useState(false);
-
-
 
 
 
@@ -29,7 +24,6 @@ export default function LoginPage() {
 
 
     setError("");
-
     setLoading(true);
 
 
@@ -70,9 +64,7 @@ export default function LoginPage() {
 
 
       setError(
-
         "❌ Invalid Email or Password"
-
       );
 
 
@@ -83,7 +75,6 @@ export default function LoginPage() {
 
 
   }
-
 
 
 
@@ -106,98 +97,61 @@ export default function LoginPage() {
     >
 
 
-
       <div className="absolute inset-0 bg-black/60"></div>
 
 
-
-
-
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl border border-green-500/40 rounded-3xl p-10 shadow-2xl">
-
-
-
 
 
         <div className="text-center">
 
 
           <p className="text-green-300 tracking-[5px] text-sm uppercase">
-
             FireGuard AI
-
           </p>
 
 
-
-
           <h1 className="text-4xl font-bold text-green-400 mt-3">
-
             🔐 Admin Login
-
           </h1>
 
 
-
-
           <p className="text-gray-300 mt-3">
-
             Firebase Secure Authentication
-
           </p>
 
 
         </div>
 
-
-
-
-
-
-
+        
         <input
-
 
           placeholder="Enter Email"
 
-
           className="mt-8 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
-
 
           value={email}
 
-
           onChange={(e)=>setEmail(e.target.value)}
 
-
         />
-
-
-
 
 
 
 
         <input
 
-
           placeholder="Enter Password"
-
 
           type="password"
 
-
           className="mt-4 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
-
 
           value={password}
 
-
           onChange={(e)=>setPassword(e.target.value)}
 
-
         />
-
 
 
 
@@ -217,42 +171,16 @@ export default function LoginPage() {
 
           {
 
-
             loading
 
             ? "Checking..."
 
             : "🚀 Login"
 
-
           }
 
 
         </button>
-
-        
-
-
-
-
-        <div className="text-center mt-5">
-
-
-          <Link
-
-            href="/forgot-password"
-
-            className="text-green-300 hover:text-green-400 underline"
-
-          >
-
-            Forgot Password?
-
-          </Link>
-
-
-        </div>
-
 
 
 
@@ -283,9 +211,6 @@ export default function LoginPage() {
 
 
 
-
-
-
         <div className="text-center mt-8">
 
 
@@ -301,9 +226,7 @@ export default function LoginPage() {
 
 
 
-
       </div>
-
 
 
 

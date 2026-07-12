@@ -1,132 +1,210 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { locations } from "@/data/locations";
 import { uploadedLocations } from "@/data/uploaded";
 
+
 export default function Home() {
 
-  const [search, setSearch] = useState("");
-  const [mode, setMode] = useState("all");
+
+  const [search,setSearch] = useState("");
+
+  const [mode,setMode] = useState("all");
+
+  const [time,setTime] = useState("");
+
+  const [incidents,setIncidents] = useState(0);
+
+
+
+
+  useEffect(()=>{
+
+
+    const timer = setInterval(()=>{
+
+      setTime(
+
+        new Date().toLocaleString()
+
+      );
+
+
+    },1000);
+
+
+
+
+    const saved = localStorage.getItem(
+
+      "fireguard_incidents"
+
+    );
+
+
+    if(saved){
+
+      setIncidents(
+
+        JSON.parse(saved).length
+
+      );
+
+    }
+
+
+
+    return ()=>clearInterval(timer);
+
+
+
+  },[]);
+
+
+
+
+
 
 
   const allLocations = [
+
     ...locations,
+
     ...uploadedLocations
+
   ];
 
 
+
+
+
+
+
   const results = search.trim()
-    ? allLocations.filter((item:any) => {
 
-        const code = item.code?.toLowerCase() || "";
-        const door = item.doorName?.toLowerCase() || "";
-        const zone = item.zone?.toLowerCase() || "";
-
-        const value = search.toLowerCase();
+  ? allLocations.filter((item:any)=>{
 
 
-        if(mode === "exact"){
-          return code === value;
-        }
+      const code = item.code?.toLowerCase() || "";
+
+      const door = item.doorName?.toLowerCase() || "";
+
+      const zone = item.zone?.toLowerCase() || "";
+
+      const value = search.toLowerCase();
 
 
-        if(mode === "partial"){
-          return code.includes(value);
-        }
 
 
-        return (
-          code.includes(value) ||
-          door.includes(value) ||
-          zone.includes(value)
-        );
+      if(mode==="exact"){
 
-      })
-    : [];
+        return code === value;
+
+      }
+
+
+
+
+      if(mode==="partial"){
+
+        return code.includes(value);
+
+      }
+
+
+
+
+      return (
+
+        code.includes(value) ||
+
+        door.includes(value) ||
+
+        zone.includes(value)
+
+      );
+
+
+
+  })
+
+  : [];
+
+
+
+
 
 
 
   return (
 
+
     <main
-      className="relative min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage:"url('/fire-bg.jpg')"
-      }}
+
+    className="relative min-h-screen bg-cover bg-center p-6"
+
+    style={{
+
+      backgroundImage:"url('/fire-bg.jpg')"
+
+    }}
+
     >
 
 
-      <div className="absolute inset-0 bg-black/70"></div>
 
-
-
-      <div className="relative z-10 w-[720px] bg-black/80 backdrop-blur-xl rounded-3xl p-10 border border-green-500/20">
-
-
-        <h1 className="text-center text-5xl font-bold text-green-400">
-          FACP SEARCH SYSTEM
-        </h1>
-
-
-        <p className="text-center text-gray-400 mt-3 text-xl">
-          Building Information Database
-        </p>
-
-
-
-        <div className="flex gap-3 mt-10">
-
-
-          <input
-            className="flex-1 p-5 rounded-xl text-black text-xl"
-            placeholder="Search code / room / zone..."
-            value={search}
-            onChange={(e)=>setSearch(e.target.value)}
-          />
-
-
-          <button className="bg-green-500 px-10 rounded-xl font-bold">
-            SEARCH
-          </button>
-
-
-        </div>
+      <div className="absolute inset-0 bg-black/50"></div>
 
 
 
 
-        <div className="flex gap-3 justify-center mt-5">
 
-
-          <button
-          onClick={()=>setMode("all")}
-          className="bg-green-500 px-5 py-2 rounded-full">
-
-            All
-
-          </button>
+      <div className="relative z-10 max-w-6xl mx-auto">
 
 
 
-          <button
-          onClick={()=>setMode("exact")}
-          className="border border-green-500 text-green-400 px-5 py-2 rounded-full">
-
-            Exact Code
-
-          </button>
 
 
 
-          <button
-          onClick={()=>setMode("partial")}
-          className="border border-green-500 text-green-400 px-5 py-2 rounded-full">
+        <div className="text-center mt-5">
 
-            Partial
 
-          </button>
+          <p className="text-green-300 tracking-[8px]">
+
+            FIRE SAFETY INTELLIGENCE
+
+          </p>
+
+
+
+          <h1 className="text-5xl font-bold text-green-400 mt-3">
+
+            🔥 FireGuard AI
+
+          </h1>
+
+
+
+
+
+          <p className="text-white text-2xl mt-2">
+
+            FACP Search & Incident Management System
+
+          </p>
+
+
+
+
+
+          <p className="text-green-300 mt-3">
+
+            🕒 {time}
+
+          </p>
+
 
 
         </div>
@@ -135,34 +213,266 @@ export default function Home() {
 
 
 
-        <div className="mt-8 max-h-80 overflow-y-auto">
 
 
-        {results.map((item:any,index)=>(
-
-          <div
-          key={index}
-          className="bg-gray-900 p-4 rounded-xl mb-3 border border-green-500/20">
+        <div className="grid md:grid-cols-4 gap-5 mt-10">
 
 
-            <p className="text-green-400 font-bold">
-              {item.code || "NO CODE"}
+
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
+
+            <h2 className="text-4xl text-green-400 font-bold">
+
+              {allLocations.length}
+
+            </h2>
+
+            <p className="text-white">
+
+              FACP Locations
+
             </p>
+
+          </div>
+
+
+
+
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
+
+            <h2 className="text-4xl text-green-400 font-bold">
+
+              {uploadedLocations.length}
+
+            </h2>
 
 
             <p className="text-white">
-              {item.doorName || "Unknown Location"}
-            </p>
 
+              Uploaded Data
 
-            <p className="text-gray-400">
-              {item.zone || "No Zone"}
             </p>
 
 
           </div>
 
-        ))}
+
+
+
+
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-red-400/30">
+
+
+            <h2 className="text-4xl text-red-400 font-bold">
+
+              {incidents}
+
+            </h2>
+
+
+            <p className="text-white">
+
+              Incidents
+
+            </p>
+
+
+          </div>
+
+
+
+
+
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
+
+
+            <h2 className="text-4xl text-green-400 font-bold">
+
+              🟢
+
+            </h2>
+
+
+            <p className="text-white">
+
+              System Online
+
+            </p>
+
+
+          </div>
+
+
+        </div>
+
+                <div className="mt-10 bg-white/10 backdropBlur-xl rounded-3xl p-8 border border-green-400/30">
+
+
+          <h2 className="text-3xl text-green-400 font-bold text-center">
+
+            🔍 FACP Search System
+
+          </h2>
+
+
+
+          <p className="text-center text-gray-200 mt-2">
+
+            Search Building Code / Room / Zone
+
+          </p>
+
+
+
+
+
+          <div className="flex gap-3 mt-8">
+
+
+            <input
+
+            className="flex-1 p-5 rounded-xl bg-white text-black text-xl"
+
+            placeholder="Search code / room / zone..."
+
+            value={search}
+
+            onChange={(e)=>setSearch(e.target.value)}
+
+            />
+
+
+
+
+            <button
+
+            className="bg-green-500 px-10 rounded-xl text-black font-bold hover:bg-green-400 hover:scale-105 transition"
+
+            >
+
+              SEARCH
+
+            </button>
+
+
+          </div>
+
+
+
+
+
+
+          <div className="flex justify-center gap-3 mt-5 flex-wrap">
+
+
+            <button
+
+            onClick={()=>setMode("all")}
+
+            className="bg-green-500 text-black px-6 py-2 rounded-full font-bold hover:bg-green-400 hover:scale-105 transition"
+
+            >
+
+              All
+
+            </button>
+
+
+
+
+
+            <button
+
+            onClick={()=>setMode("exact")}
+
+            className="border border-green-400 text-green-300 px-6 py-2 rounded-full hover:bg-green-500 hover:text-black transition"
+
+            >
+
+              Exact Code
+
+            </button>
+
+
+
+
+
+            <button
+
+            onClick={()=>setMode("partial")}
+
+            className="border border-green-400 text-green-300 px-6 py-2 rounded-full hover:bg-green-500 hover:text-black transition"
+
+            >
+
+              Partial
+
+            </button>
+
+
+
+          </div>
+
+
+
+
+
+
+
+          <div className="mt-8 max-h-72 overflow-y-auto">
+
+
+          {
+
+          results.map((item:any,index)=>(
+
+
+            <div
+
+            key={index}
+
+            className="bg-black/40 rounded-xl p-5 mb-3 border border-green-400/20 hover:border-green-400 transition"
+
+
+            >
+
+
+              <p className="text-green-400 font-bold text-xl">
+
+                {item.code || "NO CODE"}
+
+              </p>
+
+
+
+              <p className="text-white">
+
+                {item.doorName || "Unknown Location"}
+
+              </p>
+
+
+
+              <p className="text-gray-300">
+
+                {item.zone || "No Zone"}
+
+              </p>
+
+
+
+            </div>
+
+
+
+          ))
+
+          }
+
+
+
+          </div>
+
 
 
         </div>
@@ -171,43 +481,110 @@ export default function Home() {
 
 
 
-        {/* Admin & Report Buttons */}
-
-        <div className="flex flex-col items-center gap-5 mt-10">
 
 
-          <Link href="/admin">
+        <div className="grid md:grid-cols-3 gap-5 mt-10">
 
-            <button
-            className="bg-gray-800 text-gray-300 px-12 py-3 rounded-lg hover:bg-gray-700">
 
-              🔐 Admin Panel
 
-            </button>
+
+
+          <Link href="/fire-alarm-report">
+
+
+            <div className="bg-red-500/20 border border-red-400 rounded-2xl p-6 text-center hover:bg-red-500/50 hover:scale-105 transition cursor-pointer">
+
+
+              <h2 className="text-3xl">
+
+                🚨
+
+              </h2>
+
+
+              <p className="text-white font-bold mt-3">
+
+                Fire Alarm Report
+
+              </p>
+
+
+            </div>
+
 
           </Link>
 
 
 
-          <button
-          className="border border-green-500 text-green-400 px-8 py-3 rounded-lg hover:bg-green-500 hover:text-black">
 
-            📋 Create Patrolling Reports
 
-          </button>
+
+
+          <Link href="/patrol">
+
+
+            <div className="bg-green-500/20 border border-green-400 rounded-2xl p-6 text-center hover:bg-green-500/50 hover:scale-105 transition cursor-pointer">
+
+
+              <h2 className="text-3xl">
+
+                📋
+
+              </h2>
+
+
+              <p className="text-white font-bold mt-3">
+
+                Patrol Report
+
+              </p>
+
+
+            </div>
+
+
+          </Link>
+
+
+
+
+
+
+
+          <Link href="/incidents">
+
+
+            <div className="bg-blue-500/20 border border-blue-400 rounded-2xl p-6 text-center hover:bg-blue-500/50 hover:scale-105 transition cursor-pointer">
+
+
+              <h2 className="text-3xl">
+
+                📊
+
+              </h2>
+
+
+              <p className="text-white font-bold mt-3">
+
+                Incident History
+
+              </p>
+
+
+            </div>
+
+
+          </Link>
+
+
+
+
 
 
         </div>
 
 
 
-
-
-        <p className="text-center text-gray-400 mt-10">
-
-          Type something to search...
-
-        </p>
 
 
 
@@ -215,25 +592,87 @@ export default function Home() {
         <div className="flex justify-center mt-8">
 
 
-          <div className="border border-green-500 px-8 py-3 rounded-full">
+          <Link href="/admin">
 
-            <span className="text-green-400 font-bold">
 
-              MADE BY ARSLAN
+            <button
 
-            </span>
+            className="bg-white/20 border border-green-400 text-white px-12 py-3 rounded-xl hover:bg-green-500 hover:text-black hover:scale-105 transition duration-300"
 
-          </div>
+            >
+
+              🔐 Admin Panel
+
+            </button>
+
+
+          </Link>
 
 
         </div>
 
 
 
+
+
+
+
+
+
+        <div className="text-center mt-12 pb-5">
+
+
+          <p className="text-gray-300">
+
+            FireGuard AI Security Management Platform
+
+          </p>
+
+
+
+
+
+          <a
+
+            href="https://wa.me/971505677023"
+
+            target="_blank"
+
+            className="inline-block mt-4 border border-green-400 px-8 py-3 rounded-full bg-white/10 hover:bg-green-500 hover:scale-105 transition duration-300 cursor-pointer"
+
+          >
+
+
+
+            <span className="text-green-400 font-bold hover:text-black">
+
+              Developed by Muhammad Husnain 💬
+
+            </span>
+
+
+
+          </a>
+
+
+
+
+
+        </div>
+
+
+
+
+
       </div>
+
+
 
 
     </main>
 
+
   );
+
+
 }

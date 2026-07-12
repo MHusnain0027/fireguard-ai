@@ -1,49 +1,118 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 
+
 export default function PatrolPage() {
 
-  const [message, setMessage] = useState("");
 
-  const [form, setForm] = useState({
+  const [message,setMessage] = useState("");
+
+  const [reports,setReports] = useState<any[]>([]);
+
+
+
+  const [form,setForm] = useState({
+
     date: new Date().toLocaleDateString(),
+
     time: new Date().toLocaleTimeString(),
-    callSign: "",
-    patrolType: "",
-    location: "",
-    description: "",
-    remarks: "",
-    tnSr: ""
+
+    callSign:"",
+
+    patrolType:"",
+
+    location:"",
+
+    description:"",
+
+    remarks:"",
+
+    tnSr:""
+
   });
+
+
+
+
+
+
+  useEffect(()=>{
+
+
+    const saved = localStorage.getItem(
+
+      "fireguard_patrol_reports"
+
+    );
+
+
+    if(saved){
+
+      setReports(
+
+        JSON.parse(saved)
+
+      );
+
+    }
+
+
+  },[]);
+
+
+
+
+
 
 
 
   function updateField(e:any){
 
+
     setForm({
+
       ...form,
-      [e.target.name]: e.target.value
+
+      [e.target.name]:e.target.value
+
     });
+
 
   }
 
 
 
 
-  function createReport(){
+
+
+
+
+
+  function addReport(){
+
 
 
     if(
+
       !form.callSign ||
+
       !form.patrolType ||
+
       !form.location ||
+
       !form.description
+
     ){
 
-      setMessage("⚠️ Please fill all required fields");
+      setMessage(
+
+        "⚠️ Please fill required fields"
+
+      );
+
 
       return;
 
@@ -51,20 +120,181 @@ export default function PatrolPage() {
 
 
 
-    const worksheet = XLSX.utils.json_to_sheet([
 
-      {
-        Date: form.date,
-        Time: form.time,
-        "Call Sign": form.callSign,
-        "Patrol Type": form.patrolType,
-        Location: form.location,
-        Description: form.description,
-        Remarks: form.remarks,
-        "TN/SR": form.tnSr
-      }
 
-    ]);
+
+    const newReport = {
+
+
+      ...form,
+
+      date:new Date().toLocaleDateString(),
+
+      time:new Date().toLocaleTimeString()
+
+
+    };
+
+
+
+
+
+    const updated = [
+
+
+      ...reports,
+
+      newReport
+
+
+    ];
+
+
+
+
+
+    setReports(updated);
+
+
+
+
+    localStorage.setItem(
+
+      "fireguard_patrol_reports",
+
+      JSON.stringify(updated)
+
+    );
+
+
+
+
+
+    setMessage(
+
+      "✅ Patrol Entry Added Successfully"
+
+    );
+
+
+
+
+
+    setForm({
+
+      ...form,
+
+      callSign:"",
+
+      patrolType:"",
+
+      location:"",
+
+      description:"",
+
+      remarks:"",
+
+      tnSr:""
+
+    });
+
+
+
+  }
+
+
+
+
+
+
+
+  function deleteReport(index:number){
+
+
+
+    const updated = reports.filter(
+
+      (_,i)=>i!==index
+
+    );
+
+
+
+    setReports(updated);
+
+
+
+    localStorage.setItem(
+
+      "fireguard_patrol_reports",
+
+      JSON.stringify(updated)
+
+    );
+
+
+  }
+
+
+
+
+
+
+
+
+
+  function downloadReport(){
+
+
+
+    if(reports.length===0){
+
+
+      setMessage(
+
+        "⚠️ No Patrol Records Available"
+
+      );
+
+
+      return;
+
+    }
+
+
+
+
+
+
+    const data = reports.map((item,index)=>({
+
+
+      "S/N":index+1,
+
+      Date:item.date,
+
+      Time:item.time,
+
+      "Call Sign":item.callSign,
+
+      "Patrol Type":item.patrolType,
+
+      Location:item.location,
+
+      Description:item.description,
+
+      Remarks:item.remarks,
+
+      "TN/SR":item.tnSr
+
+
+    }));
+
+
+
+
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
 
 
 
@@ -73,129 +303,480 @@ export default function PatrolPage() {
 
 
     XLSX.utils.book_append_sheet(
+
       workbook,
+
       worksheet,
-      "Patrol Report"
+
+      "Daily Patrol Report"
+
     );
+
+
 
 
 
     XLSX.writeFile(
+
       workbook,
-      "FireGuard_Patrolling_Report.xlsx"
+
+      "FireGuard_Daily_Patrol_Report.xlsx"
+
     );
 
 
 
-    setMessage("✅ Report created successfully");
+    setMessage(
+
+      "📥 Daily Report Downloaded"
+
+    );
+
 
 
   }
 
 
+    return (
 
 
-  return (
+    <main
 
+    className="relative min-h-screen bg-cover bg-center p-6"
 
-    <main className="min-h-screen bg-black flex items-center justify-center p-5">
+    style={{
 
+      backgroundImage:"url('/fire-bg.jpg')"
 
+    }}
 
-      <div className="w-[700px] bg-gray-900 border border-green-500/30 rounded-3xl p-10">
-
-
-
-        <h1 className="text-4xl text-green-400 font-bold text-center">
-
-          📋 Patrolling Report Generator
-
-        </h1>
+    >
 
 
 
-        <p className="text-gray-400 text-center mt-3">
-
-          FireGuard AI Security Reporting System
-
-        </p>
+      <div className="absolute inset-0 bg-black/40"></div>
 
 
 
 
-        <div className="grid grid-cols-2 gap-4 mt-8">
+
+      <div className="relative z-10 max-w-5xl mx-auto">
 
 
 
-          <input
-          name="date"
-          value={form.date}
-          readOnly
-          className="p-3 rounded-lg text-black"
-          />
+
+
+        <div className="bg-white rounded-3xl shadow-2xl p-10">
 
 
 
-          <input
-          name="time"
-          value={form.time}
-          readOnly
-          className="p-3 rounded-lg text-black"
-          />
+
+
+          <h1 className="text-4xl text-green-700 font-bold text-center">
+
+            📋 Daily Patrolling Report Generator
+
+          </h1>
 
 
 
-          <input
-          name="callSign"
-          placeholder="Call Sign *"
-          className="p-3 rounded-lg text-black"
-          onChange={updateField}
-          />
+
+          <p className="text-gray-600 text-center mt-3">
+
+            FireGuard AI Security Reporting System
+
+          </p>
 
 
 
-          <input
-          name="patrolType"
-          placeholder="Patrol Type *"
-          className="p-3 rounded-lg text-black"
-          onChange={updateField}
-          />
 
 
 
-          <input
-          name="location"
-          placeholder="Location *"
-          className="p-3 rounded-lg text-black col-span-2"
-          onChange={updateField}
-          />
+          <div className="grid md:grid-cols-2 gap-4 mt-8">
 
 
 
-          <textarea
-          name="description"
-          placeholder="Description of Finding *"
-          className="p-3 rounded-lg text-black col-span-2 h-28"
-          onChange={updateField}
-          />
+
+
+            <input
+
+            value={form.date}
+
+            readOnly
+
+            className="p-3 rounded-lg bg-gray-100 border text-black"
+
+            />
 
 
 
-          <textarea
-          name="remarks"
-          placeholder="Remarks"
-          className="p-3 rounded-lg text-black col-span-2 h-24"
-          onChange={updateField}
-          />
 
 
 
-          <input
-          name="tnSr"
-          placeholder="TN / SR Number"
-          className="p-3 rounded-lg text-black col-span-2"
-          onChange={updateField}
-          />
+            <input
+
+            value={form.time}
+
+            readOnly
+
+            className="p-3 rounded-lg bg-gray-100 border text-black"
+
+            />
+
+
+
+
+
+
+
+            <input
+
+            name="callSign"
+
+            value={form.callSign}
+
+            placeholder="Call Sign *"
+
+            className="p-3 rounded-lg border text-black"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+
+
+            <input
+
+            name="patrolType"
+
+            value={form.patrolType}
+
+            placeholder="Patrol Type *"
+
+            className="p-3 rounded-lg border text-black"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+
+
+
+            <input
+
+            name="location"
+
+            value={form.location}
+
+            placeholder="Location *"
+
+            className="p-3 rounded-lg border text-black md:col-span-2"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+
+
+
+            <textarea
+
+            name="description"
+
+            value={form.description}
+
+            placeholder="Description / Finding *"
+
+            className="p-3 rounded-lg border text-black md:col-span-2 h-28"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+
+
+
+            <textarea
+
+            name="remarks"
+
+            value={form.remarks}
+
+            placeholder="Remarks"
+
+            className="p-3 rounded-lg border text-black md:col-span-2 h-24"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+
+
+
+            <input
+
+            name="tnSr"
+
+            value={form.tnSr}
+
+            placeholder="TN / SR Number"
+
+            className="p-3 rounded-lg border text-black md:col-span-2"
+
+            onChange={updateField}
+
+            />
+
+
+
+
+
+          </div>
+
+
+
+
+
+
+
+
+          <button
+
+          onClick={addReport}
+
+          className="mt-8 w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700"
+
+          >
+
+            ➕ Add Patrol Entry
+
+          </button>
+
+
+
+
+
+
+
+
+
+          <button
+
+          onClick={downloadReport}
+
+          className="mt-4 w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700"
+
+          >
+
+            📥 Download End Of Day Report
+
+          </button>
+
+
+
+
+
+
+
+
+          {
+
+          message &&
+
+          <p className="text-center text-green-700 font-bold mt-5">
+
+            {message}
+
+          </p>
+
+          }
+
+
+
+
+
+
+
+
+
+          <div className="mt-10">
+
+
+            <h2 className="text-2xl font-bold text-green-700">
+
+              Today's Patrol Entries ({reports.length})
+
+            </h2>
+
+
+
+
+
+
+            <div className="mt-5 space-y-4">
+
+
+
+            {
+
+            reports.length===0 ? (
+
+
+              <p className="text-gray-500">
+
+                No patrol entries available
+
+              </p>
+
+
+            )
+
+            :
+
+
+            reports.map((item,index)=>(
+
+
+
+              <div
+
+              key={index}
+
+              className="border rounded-xl p-5 bg-gray-50"
+
+              >
+
+
+
+
+                <p className="font-bold text-green-700">
+
+                  #{index+1} {item.patrolType}
+
+                </p>
+
+
+
+
+
+                <p className="text-black">
+
+                  📅 {item.date} | ⏰ {item.time}
+
+                </p>
+
+
+
+
+
+                <p className="text-black">
+
+                  📍 {item.location}
+
+                </p>
+
+
+
+
+
+                <p className="text-black">
+
+                  📝 {item.description}
+
+                </p>
+
+
+
+
+
+                <p className="text-black">
+
+                  Remarks: {item.remarks}
+
+                </p>
+
+
+
+
+
+
+                <button
+
+                onClick={()=>deleteReport(index)}
+
+                className="mt-3 bg-red-500 text-white px-5 py-2 rounded-lg"
+
+                >
+
+                  Delete
+
+                </button>
+
+
+
+
+
+              </div>
+
+
+
+            ))
+
+
+
+            }
+
+
+
+            </div>
+
+
+
+          </div>
+
+
+
+
+
+
+
+
+
+          <Link href="/">
+
+            <button
+
+            className="mt-8 w-full border border-green-600 text-green-700 py-3 rounded-xl"
+
+            >
+
+              🏠 Back To Home
+
+            </button>
+
+          </Link>
+
+
 
 
 
@@ -204,52 +785,17 @@ export default function PatrolPage() {
 
 
 
-        <button
-
-        onClick={createReport}
-
-        className="mt-8 w-full bg-green-500 text-black font-bold py-3 rounded-xl hover:bg-green-400">
-
-          📥 Create Excel Report
-
-        </button>
-
-
-
-
-        {message && (
-
-          <p className="text-center text-green-400 mt-5">
-
-            {message}
-
-          </p>
-
-        )}
-
-
-
-
-        <Link href="/">
-
-          <button
-
-          className="mt-5 w-full border border-green-500 text-green-400 py-3 rounded-xl">
-
-            🏠 Back To Home
-
-          </button>
-
-        </Link>
-
-
-
 
       </div>
 
 
+
+
+
     </main>
 
+
   );
+
 
 }

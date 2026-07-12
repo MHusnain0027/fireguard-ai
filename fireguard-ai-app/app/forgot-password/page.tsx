@@ -1,21 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/app/lib/firebase";
 
 
-export default function LoginPage() {
-
-
-  const router = useRouter();
+export default function ForgotPasswordPage() {
 
 
   const [email,setEmail] = useState("");
 
-  const [password,setPassword] = useState("");
+  const [message,setMessage] = useState("");
 
   const [error,setError] = useState("");
 
@@ -25,65 +21,83 @@ export default function LoginPage() {
 
 
 
-  async function login(){
+  async function resetPassword(){
 
+
+    setMessage("");
 
     setError("");
 
+
+
+    if(!email){
+
+
+      setError(
+        "⚠️ Please enter your email address"
+      );
+
+
+      return;
+
+    }
+
+
+
+
     setLoading(true);
+
 
 
 
     try {
 
 
-      const userCredential = await signInWithEmailAndPassword(
+
+      await sendPasswordResetEmail(
 
         auth,
 
-        email,
-
-        password
+        email
 
       );
 
 
 
-      localStorage.setItem(
 
-        "fireguard_admin",
+      setMessage(
 
-        userCredential.user.email || ""
+        "✅ Password reset link sent. Check your email."
 
       );
-
-
-
-      router.push("/admin");
 
 
 
     }
+
 
 
     catch(error:any){
 
 
+
       setError(
 
-        "❌ Invalid Email or Password"
+        "❌ Email not found or invalid"
 
       );
 
-
-      setLoading(false);
 
 
     }
 
 
-  }
 
+    setLoading(false);
+
+
+
+  }
 
 
 
@@ -104,7 +118,6 @@ export default function LoginPage() {
       }}
 
     >
-
 
 
       <div className="absolute inset-0 bg-black/60"></div>
@@ -133,23 +146,20 @@ export default function LoginPage() {
 
           <h1 className="text-4xl font-bold text-green-400 mt-3">
 
-            🔐 Admin Login
+            🔑 Reset Password
 
           </h1>
 
 
 
-
           <p className="text-gray-300 mt-3">
 
-            Firebase Secure Authentication
+            Enter your registered email
 
           </p>
 
 
         </div>
-
-
 
 
 
@@ -161,7 +171,7 @@ export default function LoginPage() {
           placeholder="Enter Email"
 
 
-          className="mt-8 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
+          className="mt-8 w-full p-4 rounded-xl bg-white text-black border border-green-500 outline-none"
 
 
           value={email}
@@ -172,33 +182,7 @@ export default function LoginPage() {
 
         />
 
-
-
-
-
-
-
-        <input
-
-
-          placeholder="Enter Password"
-
-
-          type="password"
-
-
-          className="mt-4 w-full p-4 rounded-xl bg-white text-black outline-none border border-green-500"
-
-
-          value={password}
-
-
-          onChange={(e)=>setPassword(e.target.value)}
-
-
-        />
-
-
+        
 
 
 
@@ -206,7 +190,7 @@ export default function LoginPage() {
         <button
 
 
-          onClick={login}
+          onClick={resetPassword}
 
 
           className="mt-6 w-full bg-green-500 text-black font-bold py-4 rounded-xl hover:bg-green-400 transition hover:scale-105"
@@ -220,9 +204,9 @@ export default function LoginPage() {
 
             loading
 
-            ? "Checking..."
+            ? "Sending..."
 
-            : "🚀 Login"
+            : "📩 Send Reset Link"
 
 
           }
@@ -230,28 +214,34 @@ export default function LoginPage() {
 
         </button>
 
-        
 
 
 
 
-        <div className="text-center mt-5">
 
 
-          <Link
 
-            href="/forgot-password"
-
-            className="text-green-300 hover:text-green-400 underline"
-
-          >
-
-            Forgot Password?
-
-          </Link>
+        {
 
 
-        </div>
+          message &&
+
+
+          <div className="mt-5 bg-green-500/20 border border-green-400 rounded-xl p-3">
+
+
+            <p className="text-green-300 text-center">
+
+              {message}
+
+            </p>
+
+
+          </div>
+
+
+        }
+
 
 
 
@@ -285,15 +275,20 @@ export default function LoginPage() {
 
 
 
-
         <div className="text-center mt-8">
 
 
-          <p className="text-gray-400 text-sm">
+          <Link
 
-            FireGuard AI Secure System
+            href="/login"
 
-          </p>
+            className="text-green-300 underline hover:text-green-400"
+
+          >
+
+            ← Back to Login
+
+          </Link>
 
 
         </div>

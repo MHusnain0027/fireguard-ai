@@ -19,6 +19,8 @@ export default function Home() {
 
   const [databaseLocations,setDatabaseLocations] = useState<any[]>([]);
 
+  console.log("SUPABASE DATA:", databaseLocations);
+
 
 
   useEffect(()=>{

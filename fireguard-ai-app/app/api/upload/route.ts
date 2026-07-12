@@ -5,131 +5,155 @@ import { supabase } from "@/app/lib/supabase";
 
 export async function POST(req: Request) {
 
-try {
+  try {
 
+    const formData = await req.formData();
 
-const formData = await req.formData();
+    const file = formData.get("file") as File;
 
-const file = formData.get("file") as File;
 
+    if(!file){
 
-if(!file){
+      return NextResponse.json({
+        success:false,
+        message:"No file selected"
+      });
 
-return NextResponse.json({
-success:false,
-message:"No file selected"
-});
+    }
 
-}
 
+    const bytes = await file.arrayBuffer();
 
+    const buffer = Buffer.from(bytes);
 
-const bytes = await file.arrayBuffer();
 
-const buffer = Buffer.from(bytes);
 
+    const workbook = XLSX.read(buffer,{
+      type:"buffer"
+    });
 
 
-const workbook = XLSX.read(buffer,{
-type:"buffer"
-});
 
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
+    const excelData:any[] =
+      XLSX.utils.sheet_to_json(sheet);
 
-const excelData:any[] =
-XLSX.utils.sheet_to_json(sheet);
 
 
+    if(excelData.length === 0){
 
-const locations = excelData.map((row:any)=>({
+      return NextResponse.json({
+        success:false,
+        message:"Excel is empty"
+      });
 
-sno:
-String(row.SNO || ""),
+    }
 
 
-district_code:
-String(row["District Code"] || ""),
 
+    const locations = excelData.map((row:any)=>({
 
-district_name:
-row["District Name"] || "",
+      SNO:
+      String(row.SNO || ""),
 
 
-code:
-row.Code || "",
+      District_Code:
+      String(row["District Code"] || ""),
 
 
-door_name:
-row["Door Name"] || "",
+      District_Name:
+      String(row["District Name"] || ""),
 
 
-zone:
-row.Zone || ""
+      Code:
+      String(row.Code || ""),
 
 
-}));
+      Door_Name:
+      String(row["Door Name"] || ""),
 
 
+      Zone:
+      String(row.Zone || "")
 
+    }));
 
-// delete old data
 
-await supabase
-.from("locations")
-.delete()
-.neq("id",0);
 
 
+    // Remove old records
 
-// insert new data
+    const {error:deleteError}=await supabase
+    .from("locations")
+    .delete()
+    .gte("id",0);
 
-const {error} =
-await supabase
-.from("locations")
-.insert(locations);
 
 
+    if(deleteError){
 
-if(error){
+      return NextResponse.json({
 
-return NextResponse.json({
+        success:false,
 
-success:false,
+        message:deleteError.message
 
-message:error.message
+      });
 
-});
+    }
 
-}
 
 
 
-return NextResponse.json({
 
-success:true,
+    // Insert new records
 
-total:locations.length
+    const {error}=await supabase
+    .from("locations")
+    .insert(locations);
 
-});
 
 
+    if(error){
 
-}
+      return NextResponse.json({
 
-catch(error:any){
+        success:false,
 
-return NextResponse.json({
+        message:error.message
 
-success:false,
+      });
 
-message:error.message
+    }
 
-});
 
 
-}
+    return NextResponse.json({
 
+      success:true,
+
+      total:locations.length
+
+    });
+
+
+
+  }
+
+  catch(error:any){
+
+
+    return NextResponse.json({
+
+      success:false,
+
+      message:error.message
+
+    });
+
+
+  }
 
 }

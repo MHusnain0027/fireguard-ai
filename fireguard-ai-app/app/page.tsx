@@ -192,7 +192,7 @@ return (
 
 
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      className="relative z-10 max-w-5xl mx-auto"
 
 
 
@@ -209,7 +209,7 @@ return (
 
 
 
-          <h1 className="text-5xl font-bold text-green-400 mt-3">
+          <h1 className="text-4xl md:text-5xl font-bold text-green-400 mt-3">
 
             🔥 FireGuard AI
 
@@ -218,7 +218,7 @@ return (
 
 
 
-          <p className="text-white text-2xl mt-2">
+          <p className="text-white text-lg md:text-xl mt-2">
 
             FACP Search & Incident Management System
 
@@ -240,7 +240,7 @@ return (
 
 
 
-        <div className="grid md:grid-cols-4 gap-5 mt-10">
+        <div className="grid md:grid-cols-4 gap-4 mt-10">
 
 
           <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-5 text-center border border-green-400/30">
@@ -327,7 +327,7 @@ return (
         <div className="mt-10 bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-green-400/30">
 
 
-          <h2 className="text-3xl text-green-400 font-bold text-center">
+          <h2 className="text-2xl text-green-400 font-bold text-center">
 
             🔍 FACP Search System
 
@@ -347,7 +347,7 @@ return (
 
           <input
 
-          className="w-full mt-8 p-5 rounded-xl bg-white text-black text-xl"
+          className="w-full mt-5 p-3 rounded-xl bg-white text-black text-base"
 
           placeholder="Search code / room / zone..."
 
@@ -492,9 +492,9 @@ District Code: {item.District_Code || item.district_code || "N/A"}
 
           <Link href="/fire-alarm-report">
 
-          <div className="bg-red-500/20 border border-red-400 rounded-2xl p-6 text-center hover:bg-red-500/40 cursor-pointer">
+          <div className="bg-red-500/20 border border-red-400 rounded-2xl p-4 text-center hover:bg-red-500/40 cursor-pointer">
 
-            <h2 className="text-3xl">🚨</h2>
+            <h2 className="text-2xl">🚨</h2>
 
             <p className="text-white font-bold mt-3">
 
@@ -560,7 +560,7 @@ District Code: {item.District_Code || item.district_code || "N/A"}
 
           <button
 
-          className="bg-white/20 border border-green-400 text-white px-12 py-3 rounded-xl hover:bg-green-500 hover:text-black transition"
+          className="bg-white/20 border border-green-400 text-white px-8 py-2 rounded-xl hover:bg-green-500 hover:text-black transition"
 
           >
 

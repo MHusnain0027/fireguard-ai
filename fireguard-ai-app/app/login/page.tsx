@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { 
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "firebase/auth";
+
 import { auth } from "@/app/lib/firebase";
 
 
@@ -17,6 +21,42 @@ export default function LoginPage() {
 
   const [error,setError] = useState("");
   const [loading,setLoading] = useState(false);
+
+  async function forgotPassword(){
+
+  if(!email){
+
+    setError("❌ Please enter your email first");
+
+    return;
+
+  }
+
+
+  try{
+
+    await sendPasswordResetEmail(
+      auth,
+      email
+    );
+
+
+    setError(
+      "✅ Password reset link sent to your email"
+    );
+
+
+  }
+
+  catch(error:any){
+
+    setError(
+      "❌ Email not found or reset failed"
+    );
+
+  }
+
+}
 
 
 
@@ -181,6 +221,18 @@ export default function LoginPage() {
 
 
         </button>
+
+        <button
+
+onClick={forgotPassword}
+
+className="mt-4 w-full bg-transparent border border-green-400 text-green-300 font-bold py-3 rounded-xl hover:bg-green-500/20 transition"
+
+>
+
+🔑 Forgot Password
+
+</button>
 
 
 

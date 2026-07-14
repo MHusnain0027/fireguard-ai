@@ -324,7 +324,7 @@ return (
 
 
 
-        <div className="mt-10 bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-green-400/30">
+        <div className="mt-10 bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-green-400/30">
 
 
           <h2 className="text-2xl text-green-400 font-bold text-center">

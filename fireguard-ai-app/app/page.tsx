@@ -537,7 +537,7 @@ Search Building Code / Room / Zone
 
 
 className="
-w-full
+w-3/4
 mt-5
 p-3
 rounded-xl

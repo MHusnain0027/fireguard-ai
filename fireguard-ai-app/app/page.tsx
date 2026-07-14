@@ -538,6 +538,8 @@ Search Building Code / Room / Zone
 
 className="
 w-3/4
+mx-auto
+block
 mt-5
 p-3
 rounded-xl

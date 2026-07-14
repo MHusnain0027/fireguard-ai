@@ -289,25 +289,14 @@ px-2
 
 
 
-<p className="
-text-green-300
-tracking-[6px]
-text-sm
-">
-
-FIRE SAFETY INTELLIGENCE
-
-</p>
-
-
-
 
 
 <h1 className="
-text-4xl
+text-5xl
 font-bold
 text-green-400
 mt-2
+brand-fire
 ">
 
 🔥 FireGuard AI
@@ -319,12 +308,12 @@ mt-2
 
 
 <p className="
-text-white
+text-gray-300
 text-lg
 mt-2
 ">
 
-FACP Search & Incident Management System
+AI Powered Fire Safety Monitoring Dashboard
 
 </p>
 
@@ -376,6 +365,10 @@ px-1
 <div className="
 glass-card
 border-green-400/30
+hover:scale-105
+transition-all
+duration-300
+cursor-pointer
 ">
 
 
@@ -408,6 +401,10 @@ FACP Locations
 <div className="
 glass-card
 border-green-400/30
+hover:scale-105
+transition-all
+duration-300
+cursor-pointer
 ">
 
 
@@ -440,6 +437,10 @@ Uploaded Data
 <div className="
 glass-card
 border-red-400/30
+hover:scale-105
+transition-all
+duration-300
+cursor-pointer
 ">
 
 
@@ -472,6 +473,10 @@ Incidents
 <div className="
 glass-card
 border-green-400/30
+hover:scale-105
+transition-all
+duration-300
+cursor-pointer
 ">
 
 
@@ -545,17 +550,25 @@ Search Building Code / Room / Zone
 
 className="
 w-full
-max-w-3xl
+max-w-xl
 mx-auto
 block
 mt-5
-p-3
-rounded-xl
-bg-white
+px-5
+py-4
+rounded-2xl
+bg-white/95
 text-black
-text-base
-hover-scale
-fire-glow
+text-lg
+border-2
+border-green-400
+shadow-xl
+focus:outline-none
+focus:ring-4
+focus:ring-green-400/40
+transition-all
+duration-300
+hover:scale-[1.02]
 "
 
 

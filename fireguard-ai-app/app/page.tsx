@@ -59,7 +59,9 @@ export default function Home() {
 
 
       const code =
-      (item.Code || "").toLowerCase();
+(item.Code || item.code || "")
+.toLowerCase()
+.replace(/-0+(\d+)$/, "-$1");
 
 
       const door =
@@ -77,9 +79,10 @@ export default function Home() {
       const districtName =
       (item.District_Name || "").toLowerCase();
 
-
-      const value =
-      search.toLowerCase();
+const value =
+search
+.toLowerCase()
+.replace(/-0+(\d+)$/, "-$1");
 
 
 
@@ -89,7 +92,8 @@ export default function Home() {
 
 
       if(mode==="partial"){
-        return code.includes(value);
+        return code.includes(value) ||
+code.endsWith("-" + value);
       }
 
 

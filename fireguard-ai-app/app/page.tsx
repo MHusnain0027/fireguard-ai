@@ -87,6 +87,8 @@ return ()=>clearInterval(timer);
 
 
 
+
+
 const results = search.trim()
 
 
@@ -136,6 +138,7 @@ const districtName =
 
 
 
+
 const value =
 
 search
@@ -170,6 +173,7 @@ code.endsWith("-"+value)
 );
 
 }
+
 
 
 
@@ -210,6 +214,7 @@ districtName.includes(value)
 
 
 
+
 return (
 
 
@@ -218,30 +223,31 @@ return (
 
 
 className="
-relative 
-min-h-screen 
-bg-cover 
-bg-center 
+relative
+min-h-screen
+overflow-hidden
 p-4
 "
-
-
-style={{
-
-backgroundImage:"url('/fire-bg.jpg')"
-
-}}
 
 
 >
 
 
 
-<div className="
-absolute 
-inset-0 
-bg-black/50
-">
+
+
+{/* LIVE ANIMATED BACKGROUND */}
+
+
+
+<div className="absolute inset-0">
+
+
+<div className="fire-bg-animation"></div>
+
+
+<div className="fire-particles"></div>
+
 
 </div>
 
@@ -249,12 +255,16 @@ bg-black/50
 
 
 
+
+
 <div className="
-relative 
-z-10 
-max-w-5xl 
+relative
+z-10
+max-w-5xl
 mx-auto
 ">
+
+
 
 
 
@@ -266,14 +276,16 @@ mx-auto
 
 
 <div className="
-text-center 
+text-center
 mt-3
 ">
 
 
 
+
+
 <p className="
-text-green-300 
+text-green-300
 tracking-[6px]
 text-sm
 ">
@@ -285,10 +297,11 @@ FIRE SAFETY INTELLIGENCE
 
 
 
+
 <h1 className="
-text-4xl 
-font-bold 
-text-green-400 
+text-4xl
+font-bold
+text-green-400
 mt-2
 ">
 
@@ -299,9 +312,10 @@ mt-2
 
 
 
+
 <p className="
-text-white 
-text-lg 
+text-white
+text-lg
 mt-2
 ">
 
@@ -312,8 +326,9 @@ FACP Search & Incident Management System
 
 
 
+
 <p className="
-text-green-300 
+text-green-300
 mt-2
 ">
 
@@ -323,7 +338,11 @@ mt-2
 
 
 
+
+
 </div>
+
+
 
 
 
@@ -336,9 +355,9 @@ mt-2
 
 
 <div className="
-grid 
-md:grid-cols-4 
-gap-3 
+grid
+md:grid-cols-4
+gap-3
 mt-6
 ">
 
@@ -353,8 +372,8 @@ border-green-400/30
 
 
 <h2 className="
-text-3xl 
-text-green-400 
+text-3xl
+text-green-400
 font-bold
 ">
 
@@ -377,6 +396,7 @@ FACP Locations
 
 
 
+
 <div className="
 glass-card
 border-green-400/30
@@ -384,8 +404,8 @@ border-green-400/30
 
 
 <h2 className="
-text-3xl 
-text-green-400 
+text-3xl
+text-green-400
 font-bold
 ">
 
@@ -408,6 +428,7 @@ Uploaded Data
 
 
 
+
 <div className="
 glass-card
 border-red-400/30
@@ -415,8 +436,8 @@ border-red-400/30
 
 
 <h2 className="
-text-3xl 
-text-red-400 
+text-3xl
+text-red-400
 font-bold
 ">
 
@@ -433,6 +454,7 @@ Incidents
 
 
 </div>
+
 
 
 
@@ -467,27 +489,27 @@ System Online
 
 </div>
 
-
-
 {/* SEARCH SECTION */}
+
 
 <div
 id="search"
 className="
-mt-8 
-bg-white/10 
-backdrop-blur-xl 
-rounded-3xl 
-p-5 
-border 
+mt-8
+bg-white/10
+backdrop-blur-xl
+rounded-3xl
+p-5
+border
 border-green-400/30
-">
+"
+>
 
 
 <h2 className="
-text-2xl 
-text-green-400 
-font-bold 
+text-2xl
+text-green-400
+font-bold
 text-center
 ">
 
@@ -498,8 +520,8 @@ text-center
 
 
 <p className="
-text-center 
-text-gray-200 
+text-center
+text-gray-200
 mt-2
 ">
 
@@ -510,16 +532,17 @@ Search Building Code / Room / Zone
 
 
 
+
 <input
 
 
 className="
-w-full 
-mt-5 
-p-3 
-rounded-xl 
-bg-white 
-text-black 
+w-full
+mt-5
+p-3
+rounded-xl
+bg-white
+text-black
 text-base
 hover-scale
 fire-glow
@@ -541,13 +564,14 @@ onChange={(e)=>setSearch(e.target.value)}
 
 
 
+
 {
 results.length > 0 &&
 
 <p className="
-text-center 
-text-green-400 
-font-bold 
+text-center
+text-green-400
+font-bold
 mt-3
 ">
 
@@ -561,13 +585,17 @@ mt-3
 
 
 
+
+
 <div className="
-flex 
-justify-center 
-gap-3 
-mt-4 
+flex
+justify-center
+gap-3
+mt-4
 flex-wrap
 ">
+
+
 
 
 
@@ -586,6 +614,7 @@ text-black
 All
 
 </button>
+
 
 
 
@@ -637,11 +666,15 @@ Partial
 
 
 
+
+
 <div className="
-mt-6 
-max-h-72 
+mt-6
+max-h-72
 overflow-y-auto
 ">
+
+
 
 
 
@@ -660,15 +693,15 @@ className="
 result-card
 "
 
-
-
 >
 
 
 
+
+
 <p className="
-text-green-400 
-font-bold 
+text-green-400
+font-bold
 text-lg
 ">
 
@@ -678,15 +711,17 @@ text-lg
 
 
 
+
 <p className="
-text-yellow-300 
-font-bold 
+text-yellow-300
+font-bold
 mt-2
 ">
 
 🏢 {item.District_Name || "No District"}
 
 </p>
+
 
 
 
@@ -703,6 +738,7 @@ District Code:
 
 
 
+
 <p className="
 text-white
 ">
@@ -710,6 +746,7 @@ text-white
 {item.Door_Name || "Unknown Location"}
 
 </p>
+
 
 
 
@@ -724,12 +761,16 @@ text-gray-300
 
 
 
+
+
 </div>
 
 
 ))
 
+
 }
+
 
 
 
@@ -752,12 +793,15 @@ text-gray-300
 
 
 
+
+
 <div className="
-grid 
-md:grid-cols-3 
-gap-4 
+grid
+md:grid-cols-3
+gap-4
 mt-8
 ">
+
 
 
 
@@ -781,8 +825,8 @@ border-red-400
 
 
 <p className="
-text-white 
-font-bold 
+text-white
+font-bold
 mt-2
 ">
 
@@ -795,6 +839,8 @@ Fire Alarm Report
 
 
 </Link>
+
+
 
 
 
@@ -819,8 +865,8 @@ border-green-400
 
 
 <p className="
-text-white 
-font-bold 
+text-white
+font-bold
 mt-2
 ">
 
@@ -833,6 +879,7 @@ Patrol Report
 
 
 </Link>
+
 
 
 
@@ -858,8 +905,8 @@ border-blue-400
 
 
 <p className="
-text-white 
-font-bold 
+text-white
+font-bold
 mt-2
 ">
 
@@ -872,6 +919,7 @@ Incident History
 
 
 </Link>
+
 
 
 
@@ -891,9 +939,11 @@ Incident History
 
 
 
+
+
 <div className="
-flex 
-justify-center 
+flex
+justify-center
 mt-8
 ">
 
@@ -913,7 +963,6 @@ py-3
 rounded-xl
 "
 
-
 >
 
 🔐 Admin Panel
@@ -922,7 +971,6 @@ rounded-xl
 
 
 </Link>
-
 
 
 </div>
@@ -939,11 +987,15 @@ rounded-xl
 
 
 
+
+
 <div className="
-text-center 
-mt-10 
+text-center
+mt-10
 pb-5
 ">
+
+
 
 
 
@@ -954,6 +1006,8 @@ text-gray-300
 FireGuard AI Security Management Platform
 
 </p>
+
+
 
 
 
@@ -979,12 +1033,14 @@ hover:bg-green-500/20
 transition
 "
 
-
 >
 
 
+
+
+
 <span className="
-text-green-400 
+text-green-400
 font-bold
 ">
 
@@ -993,12 +1049,15 @@ Developed by Muhammad Husnain 💬
 </span>
 
 
+
+
 </a>
 
 
 
-</div>
 
+
+</div>
 
 
 

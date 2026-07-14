@@ -460,33 +460,104 @@ Incident History
 
 
 
-<div className="flex justify-center mt-6">
+
+
+
+{/* Floating Menu */}
+
+<div className="fire-menu">
+
+
+<Link href="/">
+
+<div className="menu-item bg-green-500/20 border border-green-400 text-white">
+
+<span className="text-xl ml-4">
+🏠
+</span>
+
+<span className="menu-label">
+Dashboard
+</span>
+
+</div>
+
+</Link>
+
+
+
+<Link href="/fire-alarm-report">
+
+<div className="menu-item bg-red-500/20 border border-red-400 text-white">
+
+<span className="text-xl ml-4">
+🚨
+</span>
+
+<span className="menu-label">
+Alarm Report
+</span>
+
+</div>
+
+</Link>
+
+
+
+<Link href="/patrol">
+
+<div className="menu-item bg-blue-500/20 border border-blue-400 text-white">
+
+<span className="text-xl ml-4">
+📋
+</span>
+
+<span className="menu-label">
+Patrol
+</span>
+
+</div>
+
+</Link>
+
+
+
+<Link href="/incidents">
+
+<div className="menu-item bg-purple-500/20 border border-purple-400 text-white">
+
+<span className="text-xl ml-4">
+📊
+</span>
+
+<span className="menu-label">
+Incidents
+</span>
+
+</div>
+
+</Link>
+
 
 
 <Link href="/admin">
 
+<div className="menu-item bg-white/20 border border-green-400 text-white">
 
-<button
-className="bg-white/20 border border-green-400 text-white px-8 py-2 rounded-xl hover:bg-green-500 hover:text-black transition hover-scale fire-glow"
+<span className="text-xl ml-4">
+🔐
+</span>
 
->
+<span className="menu-label">
+Admin Panel
+</span>
 
-
-🔐 Admin Panel
-
-
-</button>
-
+</div>
 
 </Link>
 
 
 </div>
-
-
-
-
-
 
 
 

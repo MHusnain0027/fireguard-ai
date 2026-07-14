@@ -397,3 +397,40 @@ body {
   }
 
 }
+
+/* FireGuard Logo Animation */
+
+.brand-fire {
+
+  animation: firePulse 2.5s infinite;
+
+}
+
+
+@keyframes firePulse {
+
+  0% {
+
+    text-shadow:
+    0 0 5px #22c55e;
+
+  }
+
+
+  50% {
+
+    text-shadow:
+    0 0 25px #22c55e,
+    0 0 40px #06b6d4;
+
+  }
+
+
+  100% {
+
+    text-shadow:
+    0 0 5px #22c55e;
+
+  }
+
+}

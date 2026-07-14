@@ -723,3 +723,76 @@ translate(80px,50px);
 
 
 }
+
+/* =========================
+   FireGuard AI Result Cards
+========================= */
+
+
+.result-card {
+
+  background:
+  rgba(0,0,0,0.45);
+
+  border:
+  1px solid rgba(34,197,94,0.25);
+
+  border-radius:16px;
+
+  padding:16px;
+
+  margin-bottom:12px;
+
+  backdrop-filter:blur(15px);
+
+  animation:
+  resultShow .45s ease;
+
+  transition:
+  all .3s ease;
+
+}
+
+
+
+.result-card:hover {
+
+  transform:
+  translateY(-5px);
+
+  border-color:
+  #22c55e;
+
+  box-shadow:
+  0 0 25px rgba(34,197,94,0.35);
+
+}
+
+
+
+
+
+@keyframes resultShow {
+
+
+from {
+
+opacity:0;
+
+transform:
+translateY(20px);
+
+}
+
+
+to {
+
+opacity:1;
+
+transform:
+translateY(0);
+
+}
+
+
+}

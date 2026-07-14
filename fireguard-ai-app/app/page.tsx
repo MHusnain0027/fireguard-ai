@@ -129,6 +129,105 @@ backgroundImage:"url('/fire-bg.jpg')"
 
 <div className="relative z-10 max-w-5xl mx-auto">
 
+  {/* FireGuard AI Glass Navbar */}
+
+<nav className="fire-navbar">
+
+
+  <div className="brand-fire">
+
+    🔥 FireGuard AI
+
+  </div>
+
+
+
+  <div className="nav-expand">
+
+
+    <Link href="/">
+      <div className="nav-item">
+
+        🏠
+
+        <span className="nav-text">
+          Home
+        </span>
+
+      </div>
+    </Link>
+
+
+
+
+    <div className="nav-item">
+
+      🔍
+
+      <span className="nav-text">
+        Search
+      </span>
+
+    </div>
+
+
+
+
+    <Link href="/patrol">
+
+      <div className="nav-item">
+
+        📋
+
+        <span className="nav-text">
+          Patrol
+        </span>
+
+      </div>
+
+    </Link>
+
+
+
+
+    <Link href="/fire-alarm-report">
+
+      <div className="nav-item">
+
+        🚨
+
+        <span className="nav-text">
+          Reports
+        </span>
+
+      </div>
+
+    </Link>
+
+
+
+
+    <Link href="/admin">
+
+      <div className="nav-item">
+
+        🔐
+
+        <span className="nav-text">
+          Admin
+        </span>
+
+      </div>
+
+    </Link>
+
+
+
+  </div>
+
+
+</nav>
+
 
 
 <div className="text-center mt-3">
@@ -461,103 +560,6 @@ Incident History
 
 
 
-
-
-{/* Floating Menu */}
-
-<div className="fire-menu">
-
-
-<Link href="/">
-
-<div className="menu-item bg-green-500/20 border border-green-400 text-white">
-
-<span className="text-xl ml-4">
-🏠
-</span>
-
-<span className="menu-label">
-Dashboard
-</span>
-
-</div>
-
-</Link>
-
-
-
-<Link href="/fire-alarm-report">
-
-<div className="menu-item bg-red-500/20 border border-red-400 text-white">
-
-<span className="text-xl ml-4">
-🚨
-</span>
-
-<span className="menu-label">
-Alarm Report
-</span>
-
-</div>
-
-</Link>
-
-
-
-<Link href="/patrol">
-
-<div className="menu-item bg-blue-500/20 border border-blue-400 text-white">
-
-<span className="text-xl ml-4">
-📋
-</span>
-
-<span className="menu-label">
-Patrol
-</span>
-
-</div>
-
-</Link>
-
-
-
-<Link href="/incidents">
-
-<div className="menu-item bg-purple-500/20 border border-purple-400 text-white">
-
-<span className="text-xl ml-4">
-📊
-</span>
-
-<span className="menu-label">
-Incidents
-</span>
-
-</div>
-
-</Link>
-
-
-
-<Link href="/admin">
-
-<div className="menu-item bg-white/20 border border-green-400 text-white">
-
-<span className="text-xl ml-4">
-🔐
-</span>
-
-<span className="menu-label">
-Admin Panel
-</span>
-
-</div>
-
-</Link>
-
-
-</div>
 
 
 

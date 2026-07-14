@@ -280,8 +280,10 @@ mx-auto
 
 <div className="
 text-center
-mt-3
+mt-5
+px-2
 ">
+
 
 
 
@@ -359,9 +361,12 @@ mt-2
 
 <div className="
 grid
+grid-cols-2
+sm:grid-cols-2
 md:grid-cols-4
 gap-3
 mt-6
+px-1
 ">
 
 
@@ -538,9 +543,9 @@ Search Building Code / Room / Zone
 
 <input
 
-
 className="
-w-3/4
+w-full
+max-w-3xl
 mx-auto
 block
 mt-5
@@ -552,6 +557,7 @@ text-base
 hover-scale
 fire-glow
 "
+
 
 
 placeholder="Search code / room / zone..."
@@ -595,9 +601,10 @@ mt-3
 <div className="
 flex
 justify-center
-gap-3
+gap-2
 mt-4
 flex-wrap
+px-2
 ">
 
 
@@ -612,6 +619,9 @@ className="
 nav-button
 bg-green-500
 text-black
+text-sm
+px-4
+py-2
 "
 
 >
@@ -633,6 +643,9 @@ className="
 nav-button
 border-green-400
 text-green-300
+text-sm
+px-4
+py-2
 "
 
 >
@@ -802,9 +815,12 @@ text-gray-300
 
 <div className="
 grid
+grid-cols-1
+sm:grid-cols-2
 md:grid-cols-3
 gap-4
 mt-8
+px-1
 ">
 
 
@@ -963,7 +979,8 @@ menu-card
 bg-white/20
 border-green-400
 text-white
-px-8
+px-6
+sm:px-8
 py-3
 rounded-xl
 "

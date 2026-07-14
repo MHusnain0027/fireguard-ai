@@ -167,3 +167,337 @@ body {
 
 }
 
+/* FireGuard Navigation Hover Animation */
+
+.nav-card {
+
+  transition: 
+  transform 0.35s ease,
+  box-shadow 0.35s ease,
+  background 0.35s ease;
+
+}
+
+
+
+.nav-card:hover {
+
+  transform: translateY(-6px) scale(1.05);
+
+
+  background:
+  rgba(34,197,94,0.18);
+
+
+  box-shadow:
+
+  0 0 15px rgba(34,197,94,0.5),
+  0 0 35px rgba(34,197,94,0.25);
+
+
+}
+
+
+
+/* Icon animation */
+
+.nav-card h2 {
+
+  transition:
+  transform .35s ease;
+
+}
+
+
+
+.nav-card:hover h2 {
+
+  transform:
+  scale(1.2)
+  rotate(5deg);
+
+}
+
+/* ==============================
+   FireGuard AI Premium UI Effects
+============================== */
+
+
+/* Glass Cards */
+
+.glass-card {
+
+  background:
+  rgba(255,255,255,0.12);
+
+  backdrop-filter:
+  blur(20px);
+
+  border:
+  1px solid;
+
+  border-radius:
+  18px;
+
+  padding:
+  16px;
+
+  text-align:
+  center;
+
+  transition:
+  all .35s ease;
+
+}
+
+
+
+.glass-card:hover {
+
+  transform:
+  translateY(-6px)
+  scale(1.04);
+
+
+  box-shadow:
+  0 0 25px rgba(34,197,94,.35);
+
+}
+
+
+
+
+
+/* Report / Admin Menu Cards */
+
+
+.menu-card {
+
+
+  border-width:
+  1px;
+
+
+  border-style:
+  solid;
+
+
+  border-radius:
+  18px;
+
+
+  padding:
+  16px;
+
+
+  text-align:
+  center;
+
+
+  cursor:
+  pointer;
+
+
+  backdrop-filter:
+  blur(15px);
+
+
+
+  transition:
+  transform .35s ease,
+  box-shadow .35s ease,
+  background .35s ease;
+
+
+
+}
+
+
+
+.menu-card:hover {
+
+
+  transform:
+  translateY(-8px)
+  scale(1.05);
+
+
+
+  box-shadow:
+
+  0 0 20px rgba(34,197,94,.45),
+  0 0 45px rgba(6,182,212,.25);
+
+
+
+}
+
+
+
+
+/* Search Buttons */
+
+
+.nav-button {
+
+
+  padding:
+  10px 22px;
+
+
+  border-radius:
+  999px;
+
+
+  border:
+  1px solid;
+
+
+  font-weight:
+  700;
+
+
+  transition:
+  all .3s ease;
+
+
+}
+
+
+
+.nav-button:hover {
+
+
+  transform:
+  translateY(-3px)
+  scale(1.08);
+
+
+
+  box-shadow:
+
+  0 0 20px rgba(34,197,94,.5);
+
+
+
+}
+
+
+
+
+
+
+/* Search Result Cards */
+
+
+.result-card {
+
+
+  background:
+  rgba(0,0,0,.45);
+
+
+
+  border:
+  1px solid rgba(34,197,94,.25);
+
+
+
+  border-radius:
+  16px;
+
+
+  padding:
+  16px;
+
+
+  margin-bottom:
+  12px;
+
+
+
+  transition:
+  all .35s ease;
+
+
+}
+
+
+
+.result-card:hover {
+
+
+  transform:
+  translateX(8px);
+
+
+
+  border-color:
+  rgba(34,197,94,.8);
+
+
+
+  box-shadow:
+
+  0 0 25px rgba(34,197,94,.35);
+
+
+
+}
+
+
+
+
+/* Scanner effect for search bar */
+
+
+.fire-glow {
+
+
+animation:
+searchPulse 2s infinite;
+
+
+}
+
+
+
+@keyframes searchPulse {
+
+
+0%{
+
+
+box-shadow:
+0 0 5px rgba(34,197,94,.3);
+
+
+}
+
+
+
+50%{
+
+
+box-shadow:
+
+0 0 25px rgba(34,197,94,.8);
+
+
+
+}
+
+
+
+100%{
+
+
+box-shadow:
+0 0 5px rgba(34,197,94,.3);
+
+
+}
+
+
+
+}

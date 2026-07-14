@@ -60,113 +60,76 @@ export default function RootLayout({
 
 
 
-        <nav className="bg-slate-900 text-white px-8 py-4 shadow-lg">
+<nav className="bg-slate-900 text-white px-8 py-4 shadow-lg">
 
 
-          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
+  <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
 
 
+    <h1 className="brand-fire text-2xl font-bold text-green-400">
 
-            <h1 className="text-2xl font-bold text-green-400">
+      🔥 FireGuard AI
 
-              🔥 FireGuard AI
+    </h1>
 
-            </h1>
 
 
 
 
+    <div className="flex gap-5 text-sm items-center">
 
-            <div className="flex gap-5 text-sm">
 
+      <Link
+        href="/"
+        className="top-nav-item"
+      >
+        🏠 Home
+      </Link>
 
 
-              <Link
 
-              href="/"
+      <Link
+        href="/admin"
+        className="top-nav-item"
+      >
+        🔐 Admin
+      </Link>
 
-              className="hover:text-green-400"
 
-              >
 
-                🏠 Home
+      <Link
+        href="/patrol"
+        className="top-nav-item"
+      >
+        📋 Patrol
+      </Link>
 
-              </Link>
 
 
+      <Link
+        href="/fire-alarm-report"
+        className="top-nav-item"
+      >
+        🚨 Incident
+      </Link>
 
 
-              <Link
 
-              href="/admin"
+      <Link
+        href="/incidents"
+        className="top-nav-item"
+      >
+        📊 History
+      </Link>
 
-              className="hover:text-green-400"
 
-              >
+    </div>
 
-                🔐 Admin
 
-              </Link>
+  </div>
 
 
-
-
-
-              <Link
-
-              href="/patrol"
-
-              className="hover:text-green-400"
-
-              >
-
-                📋 Patrol
-
-              </Link>
-
-
-
-
-
-              <Link
-
-              href="/fire-alarm-report"
-
-              className="hover:text-green-400"
-
-              >
-
-                🚨 Incident
-
-              </Link>
-
-
-
-
-
-              <Link
-
-              href="/incidents"
-
-              className="hover:text-green-400"
-
-              >
-
-                📊 History
-
-              </Link>
-
-
-
-            </div>
-
-
-
-          </div>
-
-
-
-        </nav>
+</nav>
 
 
 

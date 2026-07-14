@@ -471,8 +471,9 @@ System Online
 
 {/* SEARCH SECTION */}
 
-
-<div className="
+<div
+id="search"
+className="
 mt-8 
 bg-white/10 
 backdrop-blur-xl 

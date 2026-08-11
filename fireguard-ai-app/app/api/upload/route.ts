@@ -1,148 +1,203 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
-import { supabase } from "@/app/lib/supabase";
+import { firebaseAdminAuth } from "@/app/lib/firebase-admin";
+import { createServerSupabaseClient } from "@/app/lib/supabase-server";
 
-export async function POST(req: Request) {
+type ExcelRow = Record<string, unknown>;
 
+type LocationInsert = {
+  SNO: string;
+  District_Code: string;
+  District_Name: string;
+  Code: string;
+  Door_Name: string;
+  Zone: string;
+};
+
+export const runtime = "nodejs";
+
+function readExcelValue(row: ExcelRow, keys: string[]) {
+  for (const key of keys) {
+    const value = row[key];
+
+    if (value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+
+  return "";
+}
+
+async function verifyAdmin(request: Request) {
+  const authorization = request.headers.get("authorization") ?? "";
+
+  if (!authorization.startsWith("Bearer ")) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  const token = authorization.slice("Bearer ".length).trim();
+
+  if (!token) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  await firebaseAdminAuth.verifyIdToken(token);
+}
+
+export async function POST(request: Request) {
   try {
+    await verifyAdmin(request);
 
-    const formData = await req.formData();
+    const formData = await request.formData();
+    const file = formData.get("file");
 
-    const file = formData.get("file") as File;
-
-    if (!file) {
-      return NextResponse.json({
-        success: false,
-        message: "No file selected"
-      });
+    if (!(file instanceof File)) {
+      return NextResponse.json(
+        { success: false, message: "No Excel file selected" },
+        { status: 400 },
+      );
     }
 
+    const fileName = file.name.toLowerCase();
+
+    if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
+      return NextResponse.json(
+        { success: false, message: "Only .xlsx or .xls files are allowed" },
+        { status: 400 },
+      );
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { success: false, message: "Excel file must be smaller than 10 MB" },
+        { status: 400 },
+      );
+    }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const workbook = XLSX.read(Buffer.from(bytes), { type: "buffer" });
+    const firstSheetName = workbook.SheetNames[0];
 
+    if (!firstSheetName) {
+      return NextResponse.json(
+        { success: false, message: "Excel workbook has no worksheet" },
+        { status: 400 },
+      );
+    }
 
-    const workbook = XLSX.read(buffer, {
-      type: "buffer"
+    const sheet = workbook.Sheets[firstSheetName];
+    const excelData = XLSX.utils.sheet_to_json<ExcelRow>(sheet, {
+      defval: "",
     });
-
-
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-
-    const excelData: any[] = XLSX.utils.sheet_to_json(sheet);
-
-
-    console.log("EXCEL RECORDS:", excelData.length);
-
 
     if (excelData.length === 0) {
-
-      return NextResponse.json({
-        success: false,
-        message: "Excel file is empty"
-      });
-
+      return NextResponse.json(
+        { success: false, message: "Excel file is empty" },
+        { status: 400 },
+      );
     }
 
-
-    const locations = excelData.map((row: any) => ({
-
-      SNO: String(row.SNO ?? ""),
-
-      District_Code: String(
-        row["District Code"] ?? row.District_Code ?? ""
-      ),
-
-      District_Name: String(
-        row["District Name"] ?? row.District_Name ?? ""
-      ),
-
-      Code: String(
-        row.Code ?? ""
-      ),
-
-      Door_Name: String(
-        row["Door Name"] ?? row.Door_Name ?? ""
-      ),
-
-      Zone: String(
-        row.Zone ?? ""
-      )
-
+    const locations: LocationInsert[] = excelData.map((row) => ({
+      SNO: readExcelValue(row, ["SNO", "Sno", "sno"]),
+      District_Code: readExcelValue(row, [
+        "District_Code",
+        "District Code",
+        "district_code",
+      ]),
+      District_Name: readExcelValue(row, [
+        "District_Name",
+        "District Name",
+        "district_name",
+      ]),
+      Code: readExcelValue(row, ["Code", "CODE", "code"]),
+      Door_Name: readExcelValue(row, [
+        "Door_Name",
+        "Door Name",
+        "door_name",
+        "DoorName",
+      ]),
+      Zone: readExcelValue(row, ["Zone", "ZONE", "zone"]),
     }));
 
-
-    console.log("DATA TO INSERT:", locations);
-
-
-
-    // INSERT NEW RECORDS ONLY
-    // Old data will remain safe
-
-    const { data, error } = await supabase
-
-      .from("locations")
-
-      .insert(locations)
-
-      .select();
-
-
-
-    if (error) {
-
-      console.log(
-        "INSERT ERROR:",
-        error
-      );
-
-
-      return NextResponse.json({
-
-        success:false,
-
-        message:error.message
-
-      });
-
-    }
-
-
-
-    return NextResponse.json({
-
-      success:true,
-
-      total:data.length,
-
-      message:"Excel uploaded successfully"
-
-    });
-
-
-
-  }
-
-
-  catch(error:any) {
-
-
-    console.log(
-      "UPLOAD ERROR:",
-      error
+    const invalidIndex = locations.findIndex(
+      (location) =>
+        !location.SNO ||
+        !location.District_Code ||
+        !location.District_Name ||
+        !location.Code ||
+        !location.Door_Name ||
+        !location.Zone,
     );
 
+    if (invalidIndex !== -1) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Excel row ${invalidIndex + 2} is missing a required value`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const supabase = createServerSupabaseClient();
+    const { data: existingRows, error: existingError } = await supabase
+      .from("locations")
+      .select("id")
+      .range(0, 9999);
+
+    if (existingError) {
+      throw new Error(existingError.message);
+    }
+
+    // Insert the validated replacement first. Existing records are removed
+    // only after the new set is safely stored, avoiding an empty database if
+    // the insert fails.
+    const { data: insertedRows, error: insertError } = await supabase
+      .from("locations")
+      .insert(locations)
+      .select("id");
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+
+    const oldIds = (existingRows ?? []).map((row) => row.id as number);
+
+    for (let start = 0; start < oldIds.length; start += 500) {
+      const idBatch = oldIds.slice(start, start + 500);
+
+      if (idBatch.length === 0) continue;
+
+      const { error: deleteError } = await supabase
+        .from("locations")
+        .delete()
+        .in("id", idBatch);
+
+      if (deleteError) {
+        throw new Error(
+          `New file was inserted, but old rows could not be removed: ${deleteError.message}`,
+        );
+      }
+    }
 
     return NextResponse.json({
-
-      success:false,
-
-      message:error.message
-
+      success: true,
+      total: insertedRows.length,
+      message: `Database replaced successfully with ${insertedRows.length} locations`,
     });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed";
 
+    if (message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { success: false, message: "Admin login required" },
+        { status: 401 },
+      );
+    }
 
+    return NextResponse.json(
+      { success: false, message },
+      { status: 500 },
+    );
   }
-
 }

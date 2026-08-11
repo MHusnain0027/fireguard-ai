@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
-import { firebaseAdminAuth } from "@/app/lib/firebase-admin";
+import { verifyFirebaseIdToken } from "@/app/lib/firebase-auth-server";
 import { createServerSupabaseClient } from "@/app/lib/supabase-server";
 
 type ExcelRow = Record<string, unknown>;
@@ -29,6 +29,8 @@ function readExcelValue(row: ExcelRow, keys: string[]) {
 }
 
 function createLocationKey(location: LocationInsert) {
+  // A room code alone is not a duplicate. Keep rows whose door name, zone,
+  // district code, or district name differs; skip only the same full location.
   return [
     location.District_Code,
     location.District_Name,
@@ -53,12 +55,15 @@ async function verifyAdmin(request: Request) {
     throw new Error("UNAUTHORIZED");
   }
 
-  await firebaseAdminAuth.verifyIdToken(token);
+  return verifyFirebaseIdToken(token);
 }
 
 export async function POST(request: Request) {
   try {
-    await verifyAdmin(request);
+    const admin = await verifyAdmin(request);
+    console.info("[api/upload] authenticated request", {
+      uid: admin.uid,
+    });
 
     const formData = await request.formData();
     const file = formData.get("file");
@@ -108,6 +113,11 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+
+    console.info("[api/upload] workbook parsed", {
+      fileName: file.name,
+      rows: excelData.length,
+    });
 
     const locations: LocationInsert[] = excelData.map((row) => ({
       SNO: readExcelValue(row, ["SNO", "Sno", "sno"]),
@@ -182,6 +192,10 @@ export async function POST(request: Request) {
     }
 
     if (newLocations.length === 0) {
+      console.info("[api/upload] no new locations", {
+        skipped: skippedLocations,
+        existing: existingRows?.length ?? 0,
+      });
       return NextResponse.json({
         success: true,
         inserted: 0,
@@ -200,6 +214,11 @@ export async function POST(request: Request) {
       throw new Error(insertError.message);
     }
 
+    console.info("[api/upload] locations inserted", {
+      inserted: insertedRows.length,
+      skipped: skippedLocations,
+    });
+
     return NextResponse.json({
       success: true,
       inserted: insertedRows.length,
@@ -217,8 +236,23 @@ export async function POST(request: Request) {
       );
     }
 
+    if (message === "FORBIDDEN") {
+      return NextResponse.json(
+        { success: false, message: "This account does not have admin access" },
+        { status: 403 },
+      );
+    }
+
+    console.error("[api/upload] failed", {
+      message,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     return NextResponse.json(
-      { success: false, message },
+      {
+        success: false,
+        message: `Upload failed: ${message}`,
+      },
       { status: 500 },
     );
   }

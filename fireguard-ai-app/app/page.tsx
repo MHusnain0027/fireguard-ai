@@ -201,12 +201,7 @@ export default function Home() {
           <time suppressHydrationWarning>{time}</time>
         </header>
 
-        <section className="search-panel original-search-panel" aria-labelledby="search-title">
-          <div className="original-search-heading">
-            <h2 id="search-title">🔍 FACP Search System</h2>
-            <p>Search Building Code / Room / Zone</p>
-          </div>
-
+        <section className="search-panel original-search-panel" aria-label="FACP location search">
           <form
             className="original-search-form"
             onSubmit={(event) => event.preventDefault()}

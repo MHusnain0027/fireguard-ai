@@ -260,35 +260,18 @@ input {
 
 .original-search-panel {
   width: 100%;
-  height: min(300px, 39vh);
-  min-height: 245px;
-  flex: 0 1 300px;
-  padding: 10px 13px 9px;
+  height: min(270px, 35vh);
+  min-height: 220px;
+  flex: 0 1 270px;
+  padding: 13px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.original-search-heading {
-  text-align: center;
-}
-
-.original-search-heading h2 {
-  margin: 0;
-  color: var(--green);
-  font-size: clamp(1rem, 1.7vw, 1.3rem);
-  line-height: 1.15;
-}
-
-.original-search-heading p {
-  margin: 4px 0 0;
-  color: #d2ddda;
-  font-size: 0.82rem;
-}
-
 .original-search-form {
   width: min(520px, 86%);
-  margin: 8px auto 0;
+  margin: 0 auto;
 }
 
 .original-search-form input {
@@ -455,6 +438,8 @@ input {
 }
 
 .report-grid {
+  width: min(720px, 86%);
+  margin-inline: auto;
   flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -463,16 +448,16 @@ input {
 
 .report-card {
   position: relative;
-  min-height: 52px;
-  padding: 7px 9px;
+  min-height: 44px;
+  padding: 5px 8px;
   border: 1px solid rgba(34, 214, 117, 0.45);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 7px;
   color: #eff7f4;
-  font-size: clamp(0.72rem, 1.4vw, 0.9rem);
+  font-size: clamp(0.68rem, 1.15vw, 0.82rem);
   text-decoration: none;
   overflow: hidden;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, filter 180ms ease;
@@ -488,7 +473,7 @@ input {
 }
 
 .report-card span {
-  font-size: 1.15rem;
+  font-size: 1rem;
   transition: transform 180ms ease;
 }
 
@@ -661,8 +646,8 @@ input {
   }
 
   .original-search-panel {
-    height: 360px;
-    min-height: 360px;
+    height: 330px;
+    min-height: 330px;
     padding-inline: 10px;
   }
 
@@ -671,7 +656,7 @@ input {
   }
 
   .report-card {
-    min-height: 58px;
+    min-height: 50px;
     padding: 7px 4px;
     flex-direction: column;
     gap: 2px;
@@ -724,9 +709,9 @@ input {
   }
 
   .original-search-panel {
-    height: 315px;
-    min-height: 255px;
-    flex-basis: 315px;
+    height: 270px;
+    min-height: 225px;
+    flex-basis: 270px;
     padding-block: 9px;
   }
 
@@ -747,7 +732,7 @@ input {
   }
 
   .report-card {
-    min-height: 54px;
+    min-height: 44px;
   }
 
   .admin-link {

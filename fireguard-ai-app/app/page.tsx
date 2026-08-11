@@ -1,1111 +1,330 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/app/lib/supabase";
 
+type SearchMode = "all" | "exact" | "partial";
+
+type LocationRecord = {
+  [key: string]: unknown;
+  id?: string | number;
+  Code?: string;
+  Door_Name?: string;
+  Zone?: string;
+  District_Code?: string;
+  District_Name?: string;
+};
+
+const searchModes: Array<{ value: SearchMode; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "exact", label: "Exact Code" },
+  { value: "partial", label: "Partial" },
+];
+
+const reportLinks = [
+  {
+    href: "/fire-alarm-report",
+    icon: "🚨",
+    label: "Fire Alarm Report",
+    tone: "report-card--alarm",
+  },
+  {
+    href: "/patrol",
+    icon: "📋",
+    label: "Patrol Report",
+    tone: "report-card--patrol",
+  },
+  {
+    href: "/incidents",
+    icon: "📊",
+    label: "Incident History",
+    tone: "report-card--history",
+  },
+];
+
+function normalizeCode(value: string) {
+  return value.toLowerCase().trim().replace(/-0+(\d+)$/, "-$1");
+}
+
+function readField(item: LocationRecord, keys: string[]) {
+  for (const key of keys) {
+    const value = item[key];
+
+    if (value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+
+  return "";
+}
+
+function getCode(item: LocationRecord) {
+  return readField(item, [
+    "Code",
+    "code",
+    "FACP_Code",
+    "facp_code",
+    "FACP Code",
+    "Room_Number",
+    "room_number",
+    "Room Number",
+  ]);
+}
+
+function getDoorName(item: LocationRecord) {
+  return readField(item, [
+    "Door_Name",
+    "door_name",
+    "doorName",
+    "Door Name",
+    "Location",
+    "location",
+    "Room_Name",
+    "room_name",
+  ]);
+}
+
+function getZone(item: LocationRecord) {
+  return readField(item, ["Zone", "zone"]);
+}
+
+function getDistrictName(item: LocationRecord) {
+  return readField(item, [
+    "District_Name",
+    "district_name",
+    "District Name",
+  ]);
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="whatsapp-icon"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+    >
+      <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.93 7.93 0 0 0 3.79.965h.003c4.366 0 7.926-3.558 7.93-7.93a7.9 7.9 0 0 0-2.326-5.607M7.994 14.521a6.57 6.57 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.57 6.57 0 0 1-1.007-3.505c.003-3.626 2.957-6.578 6.584-6.578a6.54 6.54 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.662c-.003 3.627-2.957 6.58-6.585 6.583m3.61-4.93c-.197-.099-1.17-.578-1.353-.644-.182-.066-.315-.099-.445.099-.132.197-.513.644-.628.775-.116.132-.231.148-.429.05-.197-.1-.834-.308-1.588-.981-.587-.523-.984-1.17-1.1-1.368-.115-.198-.012-.305.087-.403.089-.088.197-.23.296-.345.1-.116.132-.198.198-.33.066-.132.033-.247-.017-.345-.05-.1-.445-1.073-.61-1.47-.16-.386-.323-.333-.445-.34l-.38-.007a.73.73 0 0 0-.528.247c-.182.198-.692.677-.692 1.651s.709 1.915.808 2.047c.099.132 1.394 2.128 3.377 2.984.471.203.839.324 1.125.415.473.15.904.129 1.244.078.38-.057 1.171-.479 1.337-.941.165-.462.165-.858.116-.941-.05-.083-.182-.132-.38-.23" />
+    </svg>
+  );
+}
 
 export default function Home() {
-
-
-const [search,setSearch] = useState("");
-
-const [mode,setMode] = useState("all");
-
-const [time,setTime] = useState("");
-
-const [incidents,setIncidents] = useState(0);
-
-const [databaseLocations,setDatabaseLocations] = useState<any[]>([]);
-
-
-
-useEffect(()=>{
-
-
-const timer=setInterval(()=>{
-
-setTime(
-new Date().toLocaleString()
-);
-
-},1000);
-
-
-
-const saved =
-localStorage.getItem(
-"fireguard_incidents"
-);
-
-
-if(saved){
-
-setIncidents(
-JSON.parse(saved).length
-);
-
-}
-
-
-
-
-async function loadLocations(){
-
-
-const {data}=await supabase
-
-.from("locations")
-
-.select("*");
-
-
-
-if(data){
-
-setDatabaseLocations(data);
-
-}
-
-
-}
-
-
-
-loadLocations();
-
-
-
-return ()=>clearInterval(timer);
-
-
-
-},[]);
-
-
-
-
-
-
-
-
-const results = search.trim()
-
-
-? databaseLocations.filter((item:any)=>{
-
-
-const code =
-
-(item.Code || "")
-
-.toLowerCase()
-
-.replace(/-0+(\d+)$/, "-$1");
-
-
-
-const door =
-
-(item.Door_Name || "")
-
-.toLowerCase();
-
-
-
-const zone =
-
-(item.Zone || "")
-
-.toLowerCase();
-
-
-
-const districtCode =
-
-(item.District_Code || "")
-
-.toLowerCase();
-
-
-
-const districtName =
-
-(item.District_Name || "")
-
-.toLowerCase();
-
-
-
-
-
-const value =
-
-search
-
-.toLowerCase()
-
-.replace(/-0+(\d+)$/, "-$1");
-
-
-
-
-
-if(mode==="exact"){
-
-return code===value;
-
-}
-
-
-
-
-if(mode==="partial"){
-
-return (
-
-code.includes(value)
-
-||
-
-code.endsWith("-"+value)
-
-);
-
-}
-
-
-
-
-
-
-return (
-
-code.includes(value)
-
-||
-
-door.includes(value)
-
-||
-
-zone.includes(value)
-
-||
-
-districtCode.includes(value)
-
-||
-
-districtName.includes(value)
-
-);
-
-
-
-})
-
-
-: [];
-
-
-
-
-
-
-
-
-return (
-
-
-
-<main
-
-
-className="
-relative
-min-h-screen
-overflow-hidden
-p-4
-"
-
-
->
-
-
-
-
-
-{/* LIVE ANIMATED BACKGROUND */}
-
-<div className="absolute inset-0 overflow-hidden pointer-events-none">
-
-  <div className="fire-bg-animation"></div>
-
-  <div className="fire-particles"></div>
-
-  <div className="absolute top-10 left-10 w-72 h-72 bg-green-500/20 rounded-full blur-3xl animate-pulse"></div>
-
-  <div className="absolute bottom-10 right-10 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
-
-  <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl animate-pulse"></div>
-
-  <div className="absolute top-20 right-1/4 w-48 h-48 bg-green-300/10 rounded-full blur-3xl animate-pulse"></div>
-
-</div>
-
-
-
-
-
-
-
-<div className="
-relative
-z-10
-max-w-5xl
-mx-auto
-">
-
-
-
-
-
-
-
-
-{/* HEADER */}
-
-
-
-<div className="
-text-center
-mt-5
-px-2
-">
-
-
-
-
-
-
-
-
-<h1 className="
-text-5xl
-font-bold
-text-green-400
-mt-2
-brand-fire
-">
-
-🔥 FireGuard AI
-
-</h1>
-
-
-
-
-
-<p className="
-text-gray-300
-text-lg
-mt-2
-">
-
-AI Powered Fire Safety Monitoring Dashboard
-
-</p>
-
-
-
-
-
-<p className="
-text-green-300
-mt-2
-">
-
-🕒 {time}
-
-</p>
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-{/* STAT CARDS */}
-
-
-
-<div className="
-grid
-grid-cols-2
-sm:grid-cols-2
-md:grid-cols-4
-gap-3
-mt-6
-px-1
-">
-
-
-
-
-
-<div className="
-glass-card
-border-green-400/30
-hover:scale-105
-transition-all
-duration-300
-cursor-pointer
-">
-
-
-<h2 className="
-text-3xl
-text-green-400
-font-bold
-">
-
-{databaseLocations.length}
-
-</h2>
-
-
-<p className="text-white">
-
-FACP Locations
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div className="
-glass-card
-border-green-400/30
-hover:scale-105
-transition-all
-duration-300
-cursor-pointer
-">
-
-
-<h2 className="
-text-3xl
-text-green-400
-font-bold
-">
-
-{databaseLocations.length}
-
-</h2>
-
-
-<p className="text-white">
-
-Uploaded Data
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div className="
-glass-card
-border-red-400/30
-hover:scale-105
-transition-all
-duration-300
-cursor-pointer
-">
-
-
-<h2 className="
-text-3xl
-text-red-400
-font-bold
-">
-
-{incidents}
-
-</h2>
-
-
-<p className="text-white">
-
-Incidents
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div className="
-glass-card
-border-green-400/30
-hover:scale-105
-transition-all
-duration-300
-cursor-pointer
-">
-
-
-<h2 className="text-3xl">
-
-🟢
-
-</h2>
-
-
-<p className="text-white">
-
-System Online
-
-</p>
-
-
-</div>
-
-
-
-
-
-</div>
-
-{/* SEARCH SECTION */}
-
-
-<div
-id="search"
-className="
-mt-8
-bg-white/10
-backdrop-blur-xl
-rounded-3xl
-p-5
-border
-border-green-400/30
-"
->
-
-
-<h2 className="
-text-2xl
-text-green-400
-font-bold
-text-center
-">
-
-🔍 FACP Search System
-
-</h2>
-
-
-
-<p className="
-text-center
-text-gray-200
-mt-2
-">
-
-Search Building Code / Room / Zone
-
-</p>
-
-
-
-
-
-<input
-
-className="
-w-full
-max-w-xl
-mx-auto
-block
-mt-5
-px-5
-py-4
-rounded-2xl
-bg-white/95
-text-black
-text-lg
-border-2
-border-green-400
-shadow-xl
-focus:outline-none
-focus:ring-4
-focus:ring-green-400/40
-transition-all
-duration-300
-hover:scale-[1.02]
-"
-
-
-
-placeholder="Search code / room / zone..."
-
-
-value={search}
-
-
-onChange={(e)=>setSearch(e.target.value)}
-
-
-/>
-
-
-
-
-
-
-{
-results.length > 0 &&
-
-<p className="
-text-center
-text-green-400
-font-bold
-mt-3
-">
-
-🔥 {results.length} Location(s) Found
-
-</p>
-
-}
-
-
-
-
-
-
-
-<div className="
-flex
-justify-center
-gap-2
-mt-4
-flex-wrap
-px-2
-">
-
-
-
-
-
-<button
-
-onClick={()=>setMode("all")}
-
-className="
-nav-button
-bg-green-500
-text-black
-text-sm
-px-4
-py-2
-"
-
->
-
-All
-
-</button>
-
-
-
-
-
-
-<button
-
-onClick={()=>setMode("exact")}
-
-className="
-nav-button
-border-green-400
-text-green-300
-text-sm
-px-4
-py-2
-"
-
->
-
-Exact Code
-
-</button>
-
-
-
-
-
-
-<button
-
-onClick={()=>setMode("partial")}
-
-className="
-nav-button
-border-green-400
-text-green-300
-"
-
->
-
-Partial
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-<div className="
-mt-6
-max-h-72
-overflow-y-auto
-">
-
-
-
-
-
-{
-
-results.map((item:any,index)=>(
-
-
-<div
-
-
-key={index}
-
-
-className="
-result-card
-"
-
->
-
-
-
-
-
-<p className="
-text-green-400
-font-bold
-text-lg
-">
-
-{item.Code || "NO CODE"}
-
-</p>
-
-
-
-
-<p className="
-text-yellow-300
-font-bold
-mt-2
-">
-
-🏢 {item.District_Name || "No District"}
-
-</p>
-
-
-
-
-
-<p className="
-text-gray-300
-">
-
-District Code:
-{item.District_Code || "N/A"}
-
-</p>
-
-
-
-
-
-<p className="
-text-white
-">
-
-{item.Door_Name || "Unknown Location"}
-
-</p>
-
-
-
-
-
-<p className="
-text-gray-300
-">
-
-{item.Zone || "No Zone"}
-
-</p>
-
-
-
-
-
-</div>
-
-
-))
-
-
-}
-
-
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-{/* REPORT BUTTONS */}
-
-
-
-
-
-<div className="
-grid
-grid-cols-1
-sm:grid-cols-2
-md:grid-cols-3
-gap-4
-mt-8
-px-1
-">
-
-
-
-
-
-
-<Link href="/fire-alarm-report">
-
-
-<div className="
-menu-card
-bg-red-500/20
-border-red-400
-">
-
-
-<h2 className="text-2xl">
-
-🚨
-
-</h2>
-
-
-<p className="
-text-white
-font-bold
-mt-2
-">
-
-Fire Alarm Report
-
-</p>
-
-
-</div>
-
-
-</Link>
-
-
-
-
-
-
-
-
-<Link href="/patrol">
-
-
-<div className="
-menu-card
-bg-green-500/20
-border-green-400
-">
-
-
-<h2 className="text-2xl">
-
-📋
-
-</h2>
-
-
-<p className="
-text-white
-font-bold
-mt-2
-">
-
-Patrol Report
-
-</p>
-
-
-</div>
-
-
-</Link>
-
-
-
-
-
-
-
-
-<Link href="/incidents">
-
-
-<div className="
-menu-card
-bg-blue-500/20
-border-blue-400
-">
-
-
-<h2 className="text-2xl">
-
-📊
-
-</h2>
-
-
-<p className="
-text-white
-font-bold
-mt-2
-">
-
-Incident History
-
-</p>
-
-
-</div>
-
-
-</Link>
-
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-{/* ADMIN BUTTON */}
-
-
-
-
-
-<div className="
-flex
-justify-center
-mt-8
-">
-
-
-<Link href="/admin">
-
-
-<button
-
-className="
-menu-card
-bg-white/20
-border-green-400
-text-white
-px-6
-sm:px-8
-py-3
-rounded-xl
-"
-
->
-
-🔐 Admin Panel
-
-</button>
-
-
-</Link>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-{/* FOOTER */}
-
-
-
-
-
-<div className="
-text-center
-mt-10
-pb-5
-">
-
-
-
-
-
-<p className="
-text-gray-300
-">
-
-FireGuard AI Security Management Platform
-
-</p>
-
-
-
-
-
-
-<a
-
-
-href="https://wa.me/971505677023"
-
-
-target="_blank"
-
-
-className="
-inline-block
-mt-3
-border
-border-green-400
-px-6
-py-2
-rounded-full
-hover:bg-green-500/20
-transition
-"
-
->
-
-
-
-
-
-<span className="
-text-green-400
-font-bold
-">
-
-Developed by Muhammad Husnain 💬
-
-</span>
-
-
-
-
-</a>
-
-
-
-
-
-</div>
-
-
-
-
-
-
-</div>
-
-
-</main>
-
-
-);
-
-
+  const [search, setSearch] = useState("");
+  const [mode, setMode] = useState<SearchMode>("all");
+  const [time, setTime] = useState("");
+  const [databaseError, setDatabaseError] = useState("");
+  const [databaseLocations, setDatabaseLocations] =
+    useState<LocationRecord[]>([]);
+
+  useEffect(() => {
+    const updateTime = () => setTime(new Date().toLocaleString());
+
+    updateTime();
+    const timer = window.setInterval(updateTime, 1000);
+
+    async function loadLocations() {
+      try {
+        const response = await fetch("/api/locations", {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as {
+          success?: boolean;
+          message?: string;
+          locations?: LocationRecord[];
+        };
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || "Database connection failed");
+        }
+
+        setDatabaseLocations(payload.locations ?? []);
+        setDatabaseError("");
+      } catch (error) {
+        setDatabaseLocations([]);
+        setDatabaseError(
+          error instanceof Error ? error.message : "Database connection failed",
+        );
+      }
+    }
+
+    void loadLocations();
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const results = useMemo(() => {
+    const value = normalizeCode(search);
+
+    if (!value) return [];
+
+    return databaseLocations.filter((item) => {
+      const code = normalizeCode(getCode(item));
+      const searchableValues = Object.values(item)
+        .filter(
+          (field): field is string | number =>
+            typeof field === "string" || typeof field === "number",
+        )
+        .map((field) => normalizeCode(String(field)));
+
+      if (mode === "exact") return code === value;
+
+      if (mode === "partial") {
+        return searchableValues.some(
+          (field) => field.includes(value) || field.endsWith(`-${value}`),
+        );
+      }
+
+      return searchableValues.some((field) => field.includes(value));
+    });
+  }, [databaseLocations, mode, search]);
+
+  return (
+    <main className="dashboard-home">
+      <video
+        className="dashboard-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/facp-background.mp4" type="video/mp4" />
+      </video>
+      <div className="dashboard-video-overlay" aria-hidden="true" />
+
+      <div className="dashboard-content original-dashboard-content">
+        <header className="brand-header">
+          <h1>FireGuard</h1>
+          <p>AI Powered Fire Safety Monitoring Dashboard</p>
+          <time suppressHydrationWarning>{time}</time>
+        </header>
+
+        <section className="search-panel original-search-panel" aria-labelledby="search-title">
+          <div className="original-search-heading">
+            <h2 id="search-title">🔍 FACP Search System</h2>
+            <p>Search Building Code / Room / Zone</p>
+          </div>
+
+          <form
+            className="original-search-form"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <label className="sr-only" htmlFor="facp-search">
+              Search building code, room, or zone
+            </label>
+            <input
+              id="facp-search"
+              type="search"
+              placeholder="Search code / room / zone..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              autoComplete="off"
+            />
+          </form>
+
+          {search.trim() && results.length > 0 ? (
+            <p className="results-found">{results.length} Location(s) Found</p>
+          ) : null}
+
+          <div className="filter-row" aria-label="Search matching mode">
+            {searchModes.map((searchMode) => (
+              <button
+                key={searchMode.value}
+                type="button"
+                aria-pressed={mode === searchMode.value}
+                className={mode === searchMode.value ? "is-active" : ""}
+                onClick={() => setMode(searchMode.value)}
+              >
+                {searchMode.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="compact-stats" aria-label="Database statistics">
+            <div>
+              <strong>{databaseLocations.length}</strong>
+              <span>FACP Locations</span>
+            </div>
+            <div>
+              <strong>{databaseLocations.length}</strong>
+              <span>Uploaded Data</span>
+            </div>
+          </div>
+
+          <div
+            className={`results-panel ${search.trim() ? "has-query" : ""}`}
+            aria-live="polite"
+          >
+            {databaseError ? (
+              <p className="database-error">Database connection failed.</p>
+            ) : !search.trim() ? (
+              <p>Type something to search...</p>
+            ) : results.length === 0 ? (
+              <p>No matching FACP location found.</p>
+            ) : (
+              <div className="results-list">
+                {results.map((item, index) => (
+                  <article
+                    key={item.id ?? `${item.Code ?? "location"}-${index}`}
+                    className="result-card"
+                  >
+                    <div>
+                      <strong>{getCode(item) || "NO CODE"}</strong>
+                      <span>{getDoorName(item) || "Unknown Location"}</span>
+                    </div>
+                    <div>
+                      <span>
+                        {getDistrictName(item) || "Building Location"}
+                      </span>
+                      <span>{getZone(item) || "No Zone"}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <nav className="report-grid" aria-label="Reporting tools">
+          {reportLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`report-card ${item.tone}`}
+            >
+              <span aria-hidden="true">{item.icon}</span>
+              <strong>{item.label}</strong>
+            </Link>
+          ))}
+        </nav>
+
+        <div className="admin-row">
+          <Link href="/admin" className="admin-link">
+            🔐 Admin Panel
+          </Link>
+        </div>
+
+        <footer className="original-dashboard-footer">
+          <span>FireGuard Security Management Platform</span>
+        </footer>
+      </div>
+
+      <a
+        className="developer-float"
+        href="https://wa.me/971505677023"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Contact Muhammad Husnain on WhatsApp"
+      >
+        <span className="developer-float__icon" aria-hidden="true">
+          <WhatsAppIcon />
+        </span>
+        <span className="developer-float__label">
+          Developed by Muhammad Husnain
+        </span>
+      </a>
+    </main>
+  );
 }

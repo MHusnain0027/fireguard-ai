@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { auth } from "@/app/lib/firebase";
 
 export default function UploadPage() {
 
@@ -34,6 +35,20 @@ export default function UploadPage() {
 
     try{
 
+      await auth.authStateReady();
+
+      const currentUser = auth.currentUser;
+
+      if(!currentUser){
+
+        setMessage("❌ Admin session expired. Please login again");
+
+        return;
+
+      }
+
+      const idToken = await currentUser.getIdToken();
+
 
       const formData = new FormData();
 
@@ -49,6 +64,9 @@ export default function UploadPage() {
         "/api/upload",
         {
           method:"POST",
+          headers:{
+            Authorization:`Bearer ${idToken}`
+          },
           body:formData
         }
       );
@@ -64,7 +82,7 @@ export default function UploadPage() {
 
 
         setMessage(
-          `✅ Database Updated Successfully - ${data.total} Locations Added`
+          `✅ ${data.message}`
         );
 
 
@@ -73,7 +91,7 @@ export default function UploadPage() {
 
 
         setMessage(
-          "❌ Upload Failed. Please check Excel format"
+          `❌ ${data.message || "Upload failed. Please check Excel format"}`
         );
 
 
@@ -82,7 +100,7 @@ export default function UploadPage() {
 
 
     }
-    catch(error){
+    catch{
 
 
       setMessage(

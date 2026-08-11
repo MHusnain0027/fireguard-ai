@@ -18,11 +18,8 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
-
-  title: "FireGuard AI",
-
-  description: "Fire Safety Management System",
-
+  title: "FireGuard | FACP Search System",
+  description: "Fire safety monitoring and FACP location search system",
 };
 
 
@@ -52,7 +49,22 @@ className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
 >
 
 
-<body className="min-h-screen bg-slate-100">
+<body>
+
+
+<video
+className="site-background-video"
+autoPlay
+loop
+muted
+playsInline
+preload="metadata"
+aria-hidden="true"
+>
+<source src="/facp-background.mp4" type="video/mp4" />
+</video>
+
+<div className="site-background-overlay" aria-hidden="true" />
 
 
 
@@ -60,11 +72,11 @@ className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
 
 
 
-<main>
+<div className="site-page-layer">
 
 {children}
 
-</main>
+</div>
 
 
 

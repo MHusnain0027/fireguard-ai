@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/app/lib/firebase";
 
 
 export default function AdminPage(){
@@ -15,43 +17,26 @@ export default function AdminPage(){
 
 
   useEffect(()=>{
-
-
-    const admin = localStorage.getItem(
-      "fireguard_admin"
-    );
-
-
-    if(!admin){
-
-      router.push("/login");
-
-    }
-
-    else{
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if(!user){
+        router.replace("/login");
+        return;
+      }
 
       setChecking(false);
+    });
 
-    }
-
-
+    return unsubscribe;
   },[router]);
 
 
 
 
 
-  function logout(){
-
-
-    localStorage.removeItem(
-      "fireguard_admin"
-    );
-
-
-    router.push("/login");
-
-
+  async function logout(){
+    await signOut(auth);
+    localStorage.removeItem("fireguard_admin");
+    router.replace("/login");
   }
 
 
@@ -132,7 +117,7 @@ export default function AdminPage(){
           <h1 className="text-5xl text-center font-bold text-green-400">
 
 
-            🔐 FireGuard AI Admin Panel
+            🔐 FireGuard Admin Panel
 
 
           </h1>
@@ -187,7 +172,7 @@ export default function AdminPage(){
 
                 <p className="text-gray-300 mt-2">
 
-                  View FireGuard AI Dashboard
+                  View FireGuard Dashboard
 
                 </p>
 

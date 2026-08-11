@@ -28,6 +28,18 @@ function readExcelValue(row: ExcelRow, keys: string[]) {
   return "";
 }
 
+function createLocationKey(location: LocationInsert) {
+  return [
+    location.District_Code,
+    location.District_Name,
+    location.Code,
+    location.Door_Name,
+    location.Zone,
+  ]
+    .map((value) => value.trim().toLowerCase().replace(/\s+/g, " "))
+    .join("\u001f");
+}
+
 async function verifyAdmin(request: Request) {
   const authorization = request.headers.get("authorization") ?? "";
 
@@ -142,48 +154,58 @@ export async function POST(request: Request) {
     const supabase = createServerSupabaseClient();
     const { data: existingRows, error: existingError } = await supabase
       .from("locations")
-      .select("id")
+      .select("SNO,District_Code,District_Name,Code,Door_Name,Zone")
       .range(0, 9999);
 
     if (existingError) {
       throw new Error(existingError.message);
     }
 
-    // Insert the validated replacement first. Existing records are removed
-    // only after the new set is safely stored, avoiding an empty database if
-    // the insert fails.
+    const knownLocations = new Set(
+      (existingRows ?? []).map((row) =>
+        createLocationKey(row as LocationInsert),
+      ),
+    );
+    const newLocations: LocationInsert[] = [];
+    let skippedLocations = 0;
+
+    for (const location of locations) {
+      const locationKey = createLocationKey(location);
+
+      if (knownLocations.has(locationKey)) {
+        skippedLocations += 1;
+        continue;
+      }
+
+      knownLocations.add(locationKey);
+      newLocations.push(location);
+    }
+
+    if (newLocations.length === 0) {
+      return NextResponse.json({
+        success: true,
+        inserted: 0,
+        skipped: skippedLocations,
+        total: existingRows?.length ?? 0,
+        message: `No new locations were added. ${skippedLocations} duplicate location(s) skipped. Existing data was kept.`,
+      });
+    }
+
     const { data: insertedRows, error: insertError } = await supabase
       .from("locations")
-      .insert(locations)
+      .insert(newLocations)
       .select("id");
 
     if (insertError) {
       throw new Error(insertError.message);
     }
 
-    const oldIds = (existingRows ?? []).map((row) => row.id as number);
-
-    for (let start = 0; start < oldIds.length; start += 500) {
-      const idBatch = oldIds.slice(start, start + 500);
-
-      if (idBatch.length === 0) continue;
-
-      const { error: deleteError } = await supabase
-        .from("locations")
-        .delete()
-        .in("id", idBatch);
-
-      if (deleteError) {
-        throw new Error(
-          `New file was inserted, but old rows could not be removed: ${deleteError.message}`,
-        );
-      }
-    }
-
     return NextResponse.json({
       success: true,
-      total: insertedRows.length,
-      message: `Database replaced successfully with ${insertedRows.length} locations`,
+      inserted: insertedRows.length,
+      skipped: skippedLocations,
+      total: (existingRows?.length ?? 0) + insertedRows.length,
+      message: `${insertedRows.length} new location(s) added. ${skippedLocations} duplicate location(s) skipped. Existing data was kept.`,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed";

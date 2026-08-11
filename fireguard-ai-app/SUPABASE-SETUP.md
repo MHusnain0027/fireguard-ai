@@ -78,3 +78,10 @@ SNO | District_Code | District_Name | Code | Door_Name | Zone
 
 Upload successful hone ke baad home page refresh karo. FACP Locations aur
 Uploaded Data dono updated row count show karenge.
+
+## Upload behavior
+
+Admin upload append-only hai. Existing Supabase rows delete nahi hoti. Uploaded
+file mein jo location pehle se same `District_Code`, `District_Name`, `Code`,
+`Door_Name` aur `Zone` ke saath mojood ho woh duplicate skip hoti hai. Sirf new
+location insert hoti hai.

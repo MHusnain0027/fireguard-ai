@@ -48,7 +48,7 @@ export default function LoginPage() {
 
   }
 
-  catch(error:any){
+  catch{
 
     setError(
       "❌ Email not found or reset failed"
@@ -100,7 +100,7 @@ export default function LoginPage() {
     }
 
 
-    catch(error:any){
+    catch{
 
 
       setError(
@@ -147,7 +147,7 @@ export default function LoginPage() {
 
 
           <p className="text-green-300 tracking-[5px] text-sm uppercase">
-            FireGuard AI
+            FireGuard
           </p>
 
 

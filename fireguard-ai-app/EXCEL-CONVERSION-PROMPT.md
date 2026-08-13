@@ -26,6 +26,9 @@ Strict requirements:
 - Remove completely blank rows and exact duplicate location rows.
 - Consider a location duplicate when District_Code, District_Name, Code,
   Door_Name and Zone are all the same after trimming spaces and ignoring case.
+- Never treat the Code/room number alone as a duplicate. If the same Code has a
+  different Door_Name, Zone, District_Code or District_Name, keep every row.
+- SNO is not used to decide whether two locations are duplicates.
 - Renumber SNO sequentially from 1 after cleaning the data.
 - Do not create merged cells, formulas, colors, additional headings, notes,
   hidden sheets or extra columns.
@@ -42,5 +45,5 @@ Example output row:
 
 Important: The FireGuard upload is append-only. Existing Supabase data must not
 be deleted. The Admin Panel will add only new locations and skip exact existing
-duplicates.
+duplicates. Repeated room codes are allowed when another location field differs.
 ```

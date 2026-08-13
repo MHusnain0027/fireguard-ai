@@ -84,4 +84,7 @@ Uploaded Data dono updated row count show karenge.
 Admin upload append-only hai. Existing Supabase rows delete nahi hoti. Uploaded
 file mein jo location pehle se same `District_Code`, `District_Name`, `Code`,
 `Door_Name` aur `Zone` ke saath mojood ho woh duplicate skip hoti hai. Sirf new
-location insert hoti hai.
+location insert hoti hai. Sirf `Code` ya room number same hone se row duplicate
+nahi banti: agar `Door_Name`, `Zone`, `District_Code` ya `District_Name` mein se
+koi bhi value different ho to dono rows save rehti hain. `SNO` duplicate check
+ka hissa nahi hai.

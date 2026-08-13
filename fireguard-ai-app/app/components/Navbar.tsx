@@ -24,7 +24,9 @@ export default function Navbar() {
         <button
           type="button"
           className="menu-toggle"
-          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={
+            menuOpen ? "Close navigation menu" : "Open navigation menu"
+          }
           aria-expanded={menuOpen}
           aria-controls="primary-menu"
           onClick={() => setMenuOpen((current) => !current)}

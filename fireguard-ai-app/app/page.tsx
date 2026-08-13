@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
 type SearchMode = "all" | "exact" | "partial";
 
@@ -19,27 +18,6 @@ const searchModes: Array<{ value: SearchMode; label: string }> = [
   { value: "all", label: "All" },
   { value: "exact", label: "Exact Code" },
   { value: "partial", label: "Partial" },
-];
-
-const reportLinks = [
-  {
-    href: "/fire-alarm-report",
-    icon: "🚨",
-    label: "Fire Alarm Report",
-    tone: "report-card--alarm",
-  },
-  {
-    href: "/patrol",
-    icon: "📋",
-    label: "Patrol Report",
-    tone: "report-card--patrol",
-  },
-  {
-    href: "/incidents",
-    icon: "📊",
-    label: "Incident History",
-    tone: "report-card--history",
-  },
 ];
 
 function normalizeCode(value: string) {
@@ -128,6 +106,7 @@ export default function Home() {
         const response = await fetch("/api/locations", {
           cache: "no-store",
         });
+
         const payload = (await response.json()) as {
           success?: boolean;
           message?: string;
@@ -143,7 +122,9 @@ export default function Home() {
       } catch (error) {
         setDatabaseLocations([]);
         setDatabaseError(
-          error instanceof Error ? error.message : "Database connection failed",
+          error instanceof Error
+            ? error.message
+            : "Database connection failed",
         );
       }
     }
@@ -160,6 +141,7 @@ export default function Home() {
 
     return databaseLocations.filter((item) => {
       const code = normalizeCode(getCode(item));
+
       const searchableValues = Object.values(item)
         .filter(
           (field): field is string | number =>
@@ -181,6 +163,7 @@ export default function Home() {
 
   return (
     <main className="dashboard-home">
+      {/* NEW HERO BACKGROUND VIDEO */}
       <video
         className="dashboard-video"
         autoPlay
@@ -190,8 +173,9 @@ export default function Home() {
         preload="auto"
         aria-hidden="true"
       >
-        <source src="/facp-background.mp4" type="video/mp4" />
+        <source src="/hero-background.mp4" type="video/mp4" />
       </video>
+
       <div className="dashboard-video-overlay" aria-hidden="true" />
 
       <div className="dashboard-content original-dashboard-content">
@@ -201,7 +185,10 @@ export default function Home() {
           <time suppressHydrationWarning>{time}</time>
         </header>
 
-        <section className="search-panel original-search-panel" aria-label="FACP location search">
+        <section
+          className="search-panel original-search-panel"
+          aria-label="FACP location search"
+        >
           <form
             className="original-search-form"
             onSubmit={(event) => event.preventDefault()}
@@ -209,6 +196,7 @@ export default function Home() {
             <label className="sr-only" htmlFor="facp-search">
               Search building code, room, or zone
             </label>
+
             <input
               id="facp-search"
               type="search"
@@ -220,7 +208,9 @@ export default function Home() {
           </form>
 
           {search.trim() && results.length > 0 ? (
-            <p className="results-found">{results.length} Location(s) Found</p>
+            <p className="results-found">
+              {results.length} Location(s) Found
+            </p>
           ) : null}
 
           <div className="filter-row" aria-label="Search matching mode">
@@ -242,6 +232,7 @@ export default function Home() {
               <strong>{databaseLocations.length}</strong>
               <span>FACP Locations</span>
             </div>
+
             <div>
               <strong>{databaseLocations.length}</strong>
               <span>Uploaded Data</span>
@@ -267,8 +258,11 @@ export default function Home() {
                   >
                     <div>
                       <strong>{getCode(item) || "NO CODE"}</strong>
-                      <span>{getDoorName(item) || "Unknown Location"}</span>
+                      <span>
+                        {getDoorName(item) || "Unknown Location"}
+                      </span>
                     </div>
+
                     <div>
                       <span>
                         {getDistrictName(item) || "Building Location"}
@@ -282,23 +276,12 @@ export default function Home() {
           </div>
         </section>
 
-        <nav className="report-grid" aria-label="Reporting tools">
-          {reportLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`report-card ${item.tone}`}
-            >
-              <span aria-hidden="true">{item.icon}</span>
-              <strong>{item.label}</strong>
-            </Link>
-          ))}
-        </nav>
+        {/* REPORT CARDS REMOVED FROM HERE */}
 
         <div className="admin-row">
-          <Link href="/admin" className="admin-link">
+          <a href="/admin" className="admin-link">
             🔐 Admin Panel
-          </Link>
+          </a>
         </div>
 
         <footer className="original-dashboard-footer">
@@ -316,6 +299,7 @@ export default function Home() {
         <span className="developer-float__icon" aria-hidden="true">
           <WhatsAppIcon />
         </span>
+
         <span className="developer-float__label">
           Developed by Muhammad Husnain
         </span>

@@ -164,25 +164,29 @@ export default function Home() {
   return (
     <main className="dashboard-home">
       {/* NEW HERO BACKGROUND VIDEO */}
-      <video
-        className="dashboard-video"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-        onLoadedMetadata={(e) => {
-            e.currentTarget.currentTime = 2;
-  }}
-
-   onEnded={(e) => {
+     <video
+  className="dashboard-video"
+  autoPlay
+  muted
+  playsInline
+  preload="auto"
+  aria-hidden="true"
+  onLoadedMetadata={(e) => {
     e.currentTarget.currentTime = 2;
-    e.currentTarget.play();
   }}
-      >
-        <source src="/14471459_3840_2160_30fps.mp4" type="video/mp4" />
-      </video>
+  onCanPlay={(e) => {
+    e.currentTarget.play().catch(() => {});
+  }}
+  onEnded={(e) => {
+    e.currentTarget.currentTime = 2;
+    e.currentTarget.play().catch(() => {});
+  }}
+>
+  <source
+    src="/14471459_3840_2160_30fps.mp4"
+    type="video/mp4"
+  />
+</video>
 
       <div className="dashboard-video-overlay" aria-hidden="true" />
 

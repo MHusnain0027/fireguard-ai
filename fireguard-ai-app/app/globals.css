@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020807;
+  --background: #000000;
   --foreground: #f2f7f5;
   --green: #22d675;
   --green-soft: #86e6ad;
@@ -52,7 +52,7 @@ body {
 
 .site-background-overlay {
   z-index: 1;
-  background: rgba(1, 8, 7, 0.76);
+  background: rgba(0, 0, 0, 0.76);
 }
 
 .site-page-layer {
@@ -187,7 +187,7 @@ input {
   min-height: 0;
   overflow: hidden;
   isolation: isolate;
-  background: #020807;
+  background: #000000;
 }
 
 .dashboard-video,
@@ -205,13 +205,12 @@ input {
   object-fit: cover;
   object-position: center;
   opacity: 0.7;
-  filter: blur(2px);
   transform: scale(1.03);
 }
 
 .dashboard-video-overlay {
   z-index: 1;
-  background: rgba(1, 10, 9, 0.80);
+  background: rgba(0, 0, 0, 0.80);
 }
 
 .dashboard-content {
@@ -322,7 +321,7 @@ input {
   padding: 5px 13px;
   border: 1px solid rgba(34, 214, 117, 0.68);
   border-radius: 999px;
-  background: #07130f;
+  background: #080808;
   color: var(--green-soft);
   font-size: 0.74rem;
   font-weight: 800;
@@ -365,7 +364,7 @@ input {
 
 .compact-stats > div:hover {
   border-color: var(--green);
-  background: #0e241a;
+  background: #080808;
   transform: translateY(-1px);
 }
 
@@ -386,7 +385,7 @@ input {
   min-height: 46px;
   margin-top: 5px;
   padding-top: 4px;
-  padding-bottom: 18px;
+  padding-bottom: 25px;
   flex: 1;
   display: grid;
   place-items: center;
@@ -424,7 +423,7 @@ input {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  background: #040c0a;
+  background: #080808;
 }
 
 .result-card > div {
@@ -501,7 +500,7 @@ input {
 
 .report-card--patrol {
   border-color: #288654;
-  background: #0d2117;
+  background: #080808;
 }
 
 .report-card--history {
@@ -519,7 +518,7 @@ input {
   padding: 7px 13px;
   border: 1px solid rgba(34, 214, 117, 0.48);
   border-radius: 9px;
-  background: #0a1512;
+  background: #080808;
   color: #edf5f2;
   font-size: 0.73rem;
   text-decoration: none;
@@ -629,7 +628,7 @@ input {
   padding: 8px 11px;
   border: 1px solid rgba(34, 214, 117, 0.48);
   border-radius: 9px;
-  background: #07110f;
+  background: #080808;
   color: #e8f2ee;
   font-size: 0.68rem;
   font-weight: 700;

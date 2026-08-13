@@ -386,6 +386,7 @@ input {
   min-height: 46px;
   margin-top: 5px;
   padding-top: 4px;
+  padding-bottom: 18px;cd ..
   flex: 1;
   display: grid;
   place-items: center;

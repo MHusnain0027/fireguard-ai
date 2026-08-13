@@ -183,9 +183,7 @@ input {
 /* Home dashboard: fixed to one viewport with the supplied video behind it. */
 .dashboard-home {
   position: relative;
-  height: calc(100dvh - 58px);
-  min-height: 0;
-  overflow: hidden;
+  min-height: calc(100dvh - 58px);
   isolation: isolate;
   background: #000000;
 }
@@ -220,22 +218,26 @@ input {
 
 .dashboard-content {
   width: min(640px, calc(100% - 28px));
-  height: 100%;
+  min-height: calc(100dvh - 58px);
+  height: auto;
   margin: 0 auto;
 }
 
 .original-dashboard-content {
-  padding: 10px 0;
+  min-height: calc(100dvh - 58px);
+  height: 100%;
+  padding: 55px 0 15px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-  overflow: hidden;
+  justify-content: space-between;
+  gap: 10px;
+  overflow: visible;
 }
 
 .brand-header {
   flex: 0 0 auto;
   text-align: center;
+  margin-top: 30px;
 }
 
 .brand-header h1 {
@@ -270,9 +272,10 @@ input {
 
 .original-search-panel {
   width: 100%;
-  height: min(310px, 40vh);
-  min-height: 240px;
-  flex: 0 1 310px;
+  height: 350px !important;
+  min-height: 350px !important;
+  max-height: 350px !important;
+  flex: 0 0 350px !important;
   padding: 13px;
   display: flex;
   flex-direction: column;
@@ -382,11 +385,12 @@ input {
 }
 
 .results-panel {
-  min-height: 46px;
+  min-height: 0;
+  height: auto;
   margin-top: 5px;
   padding-top: 4px;
-  padding-bottom: 25px;
-  flex: 1;
+  padding-bottom: 10px;
+  flex: 1 1 auto;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -395,8 +399,8 @@ input {
   font-size: 0.75rem;
 }
 
-.results-panel > p {
-  margin: 0;
+.results-panel.has-query {
+  display: block;
 }
 
 .results-panel .database-error {
@@ -512,6 +516,7 @@ input {
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
+  margin-top: auto;
 }
 
 .admin-link {
@@ -543,6 +548,7 @@ input {
   gap: 18px;
   color: #b8c5c0;
   font-size: 0.67rem;
+  margin-top: 0;
 }
 
 .original-dashboard-footer a {
@@ -657,9 +663,11 @@ input {
   }
 
 .original-search-panel {
-  height: 350px;
-  min-height: 350px;
-  padding-inline: 10px;
+  height: 350px !important;
+  min-height: 350px !important;
+  max-height: 350px !important;
+  flex: 0 0 350px !important;
+  padding-block: 9px;
 }
 
   .original-search-form {
@@ -698,10 +706,17 @@ input {
   }
 
   .dashboard-home {
-    height: calc(100dvh - 50px);
+    min-height: calc(100dvh - 50px);
+  }
+
+  .dashboard-content {
+    min-height: calc(100dvh - 50px);
   }
 
   .original-dashboard-content {
+    min-height: calc(100dvh - 50px);
+    padding-top: 12px;
+    padding-bottom: 20px;
     gap: 6px;
   }
 
@@ -719,12 +734,13 @@ input {
     font-size: 0.64rem;
   }
 
-  .original-search-panel {
-    height: 270px;
-    min-height: 225px;
-    flex-basis: 270px;
-    padding-block: 9px;
-  }
+ .original-search-panel {
+  height: 350px !important;
+  min-height: 350px !important;
+  max-height: 350px !important;
+  flex: 0 0 350px !important;
+  padding-inline: 10px;
+}
 
   .original-search-form {
     margin-top: 7px;

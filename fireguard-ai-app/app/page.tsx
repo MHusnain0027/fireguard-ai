@@ -172,6 +172,14 @@ export default function Home() {
         playsInline
         preload="auto"
         aria-hidden="true"
+        onLoadedMetadata={(e) => {
+            e.currentTarget.currentTime = 2;
+  }}
+
+   onEnded={(e) => {
+    e.currentTarget.currentTime = 2;
+    e.currentTarget.play();
+  }}
       >
         <source src="/14471459_3840_2160_30fps.mp4" type="video/mp4" />
       </video>

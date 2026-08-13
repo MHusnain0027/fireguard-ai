@@ -211,7 +211,7 @@ input {
 
 .dashboard-video-overlay {
   z-index: 1;
-  background: rgba(1, 10, 9, 0.68);
+  background: rgba(1, 10, 9, 0.80);
 }
 
 .dashboard-content {

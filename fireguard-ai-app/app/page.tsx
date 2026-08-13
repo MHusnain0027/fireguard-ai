@@ -173,7 +173,7 @@ export default function Home() {
         preload="auto"
         aria-hidden="true"
       >
-        <source src="/hero-background.mp4" type="video/mp4" />
+        <source src="/14471459_3840_2160_30fps.mp4" type="video/mp4" />
       </video>
 
       <div className="dashboard-video-overlay" aria-hidden="true" />

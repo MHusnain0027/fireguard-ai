@@ -197,13 +197,14 @@ input {
   pointer-events: none;
 }
 
-.dashboard-video {
-  z-index: 0;
-  display: block;
-  object-fit: cover;
-  object-position: center;
-  opacity: 0.7;
-  transform: scale(1.03);
+.dashboard-video { 
+  z-index: 0; 
+  display: block; 
+  object-fit: cover; 
+  object-position: center; 
+  opacity: 0.7; 
+  filter: blur(1px);
+  transform: scale(1.03); 
 }
 
 .dashboard-video-overlay {

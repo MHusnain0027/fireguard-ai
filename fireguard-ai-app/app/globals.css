@@ -202,14 +202,14 @@ input {
   display: block; 
   object-fit: cover; 
   object-position: center; 
-  opacity: 0.7; 
-  filter: blur(1px);
-  transform: scale(1.03); 
+  opacity: 1;
+  filter: none;
+  transform: none;
 }
 
-.dashboard-video-overlay {
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.80);
+.dashboard-video-overlay { 
+  z-index: 1; 
+  background: transparent;
 }
 
 .dashboard-content {

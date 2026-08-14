@@ -203,6 +203,7 @@ input {
   object-fit: cover; 
   object-position: center; 
   opacity: 1;
+  filter: blur(1px);
   filter: none;
   transform: none;
 }

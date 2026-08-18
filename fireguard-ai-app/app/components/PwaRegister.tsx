@@ -8,13 +8,34 @@ export default function PwaRegister() {
 
     let intervalId: number | undefined;
     let reloading = false;
-    const hadControllerOnLoad = Boolean(navigator.serviceWorker.controller);
 
-    const handleControllerChange = () => {
-      if (!hadControllerOnLoad || reloading) return;
+    const hadControllerOnLoad =
+      Boolean(navigator.serviceWorker.controller);
+
+    const reloadOnce = () => {
+      if (reloading) return;
 
       reloading = true;
-      window.location.reload();
+
+      window.setTimeout(() => {
+        window.location.reload();
+      }, 80);
+    };
+
+    const handleControllerChange = () => {
+      if (!hadControllerOnLoad) return;
+      reloadOnce();
+    };
+
+    const handleMessage = (
+      event: MessageEvent,
+    ) => {
+      if (
+        event.data?.type ===
+        "FIREGUARD_CONTENT_UPDATED"
+      ) {
+        reloadOnce();
+      }
     };
 
     navigator.serviceWorker.addEventListener(
@@ -22,38 +43,49 @@ export default function PwaRegister() {
       handleControllerChange,
     );
 
+    navigator.serviceWorker.addEventListener(
+      "message",
+      handleMessage,
+    );
+
     async function registerServiceWorker() {
       try {
-        const registration = await navigator.serviceWorker.register(
-          "/sw.js",
-          {
-            scope: "/",
-            updateViaCache: "none",
-          },
-        );
+        const registration =
+          await navigator.serviceWorker.register(
+            "/sw.js",
+            {
+              scope: "/",
+              updateViaCache: "none",
+            },
+          );
 
         const checkForUpdate = () => {
-          void registration.update().catch((error) => {
-            console.warn("FireGuard update check failed:", error);
-          });
+          void registration.update().catch(
+            (error) => {
+              console.warn(
+                "FireGuard update check failed:",
+                error,
+              );
+            },
+          );
         };
 
-        // Check immediately
         checkForUpdate();
 
-        // Check every 5 minutes while app is open
         intervalId = window.setInterval(
           checkForUpdate,
           5 * 60 * 1000,
         );
 
         const handleVisibilityChange = () => {
-          if (document.visibilityState === "visible") {
+          if (
+            document.visibilityState ===
+            "visible"
+          ) {
             checkForUpdate();
           }
         };
 
-        // Check whenever user returns to app
         document.addEventListener(
           "visibilitychange",
           handleVisibilityChange,
@@ -85,11 +117,15 @@ export default function PwaRegister() {
       return undefined;
     }
 
-    let removeUpdateListeners: (() => void) | undefined;
+    let removeUpdateListeners:
+      | (() => void)
+      | undefined;
 
-    void registerServiceWorker().then((cleanup) => {
-      removeUpdateListeners = cleanup;
-    });
+    void registerServiceWorker().then(
+      (cleanup) => {
+        removeUpdateListeners = cleanup;
+      },
+    );
 
     return () => {
       if (intervalId !== undefined) {
@@ -101,6 +137,11 @@ export default function PwaRegister() {
       navigator.serviceWorker.removeEventListener(
         "controllerchange",
         handleControllerChange,
+      );
+
+      navigator.serviceWorker.removeEventListener(
+        "message",
+        handleMessage,
       );
     };
   }, []);

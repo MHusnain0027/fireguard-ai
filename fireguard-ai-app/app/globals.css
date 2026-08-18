@@ -185,7 +185,8 @@ input {
   position: relative;
   min-height: calc(100dvh - 58px);
   isolation: isolate;
-  background: #000000;
+  background:
+    #000000 url("/fire-bg.jpg") center / cover no-repeat;
 }
 
 .dashboard-video,
@@ -201,7 +202,9 @@ input {
   z-index: 0; 
   display: block; 
   object-fit: cover; 
-  object-position: center; 
+  object-position: center;
+  background:
+    #000000 url("/fire-bg.jpg") center / cover no-repeat;
   opacity: 1;
   filter: blur(1px);
   filter: none;
@@ -777,7 +780,6 @@ input {
     transition-duration: 0.01ms !important;
   }
 
-  .dashboard-video,
   .site-background-video {
     display: none;
   }

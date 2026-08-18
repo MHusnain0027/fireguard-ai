@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type SearchMode = "all" | "exact" | "partial";
@@ -169,7 +170,8 @@ export default function Home() {
   autoPlay
   muted
   playsInline
-  preload="auto"
+  preload="metadata"
+  poster="/fire-bg.jpg"
   aria-hidden="true"
   onLoadedMetadata={(e) => {
     e.currentTarget.currentTime = 2;
@@ -193,7 +195,7 @@ export default function Home() {
       <div className="dashboard-content original-dashboard-content">
         <header className="brand-header">
           <h1>FireGuard</h1>
-          <p>AI Powered Fire Safety Monitoring Dashboard</p>
+          <p>AI Powered Fire Safety Monitoring Dashboard • LIVE SYNC</p>
           <time suppressHydrationWarning>{time}</time>
         </header>
 
@@ -291,9 +293,9 @@ export default function Home() {
         {/* REPORT CARDS REMOVED FROM HERE */}
 
         <div className="admin-row">
-          <a href="/admin" className="admin-link">
+          <Link href="/admin" className="admin-link">
             🔐 Admin Panel
-          </a>
+          </Link>
         </div>
 
         <footer className="original-dashboard-footer">

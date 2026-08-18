@@ -1,11 +1,11 @@
-const STATIC_CACHE = "fireguard-static-v2";
-const RUNTIME_CACHE = "fireguard-runtime-v2";
-const DATA_CACHE = "fireguard-data-v2";
+const STATIC_CACHE = "fireguard-static-v3";
+const RUNTIME_CACHE = "fireguard-runtime-v3";
+const DATA_CACHE = "fireguard-data-v3";
 
 const CORE_ASSETS = [
   "/",
   "/locations-seed.json",
-  "/14471459_3840_2160_30fps.mp4",
+  "/fire-bg.jpg",
   "/favicon.ico",
   "/fireguard-icon-512.png",
   "/fireguard-maskable-512.png",
@@ -64,6 +64,19 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+async function notifyContentUpdated() {
+  const clients = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+  for (const client of clients) {
+    client.postMessage({
+      type: "FIREGUARD_CONTENT_UPDATED",
+    });
+  }
+}
+
 async function networkFirstLocations(request) {
   const cache = await caches.open(DATA_CACHE);
 
@@ -82,10 +95,9 @@ async function networkFirstLocations(request) {
       return cached;
     }
 
-    const staticCache = await caches.open(STATIC_CACHE);
-
-    const seed =
-      await staticCache.match("/locations-seed.json");
+    const seed = await caches.match(
+      "/locations-seed.json",
+    );
 
     if (seed) {
       return seed;
@@ -108,20 +120,61 @@ async function networkFirstLocations(request) {
   }
 }
 
-async function networkFirstHome(request) {
+async function revalidateHome(request, cached) {
   const cache = await caches.open(RUNTIME_CACHE);
 
-  try {
-    const response = await fetch(request);
+  const response = await fetch(request, {
+    cache: "no-store",
+  });
 
-    if (response.ok) {
-      await cache.put("/", response.clone());
-    }
-
+  if (!response.ok) {
     return response;
+  }
+
+  const oldEtag =
+    cached?.headers.get("etag") || "";
+
+  const newEtag =
+    response.headers.get("etag") || "";
+
+  await cache.put("/", response.clone());
+
+  if (
+    cached &&
+    oldEtag &&
+    newEtag &&
+    oldEtag !== newEtag
+  ) {
+    await notifyContentUpdated();
+  }
+
+  return response;
+}
+
+async function fastHome(request, event) {
+  const runtime = await caches.open(RUNTIME_CACHE);
+
+  const cached =
+    (await runtime.match("/")) ||
+    (await caches.match("/"));
+
+  const networkPromise = revalidateHome(
+    request,
+    cached,
+  );
+
+  if (cached) {
+    event.waitUntil(
+      networkPromise.catch(() => undefined),
+    );
+
+    return cached;
+  }
+
+  try {
+    return await networkPromise;
   } catch (error) {
     return (
-      (await cache.match("/")) ||
       (await caches.match("/")) ||
       Response.error()
     );
@@ -140,7 +193,10 @@ async function cacheFirst(request) {
   const response = await fetch(request);
 
   if (response.ok) {
-    await cache.put(request, response.clone());
+    await cache.put(
+      request,
+      response.clone(),
+    );
   }
 
   return response;
@@ -149,7 +205,9 @@ async function cacheFirst(request) {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
-  if (request.method !== "GET") return;
+  if (request.method !== "GET") {
+    return;
+  }
 
   const url = new URL(request.url);
 
@@ -157,8 +215,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Latest Supabase-backed FACP data when online.
-  // Last successful data / bundled seed when offline.
+  /*
+   * IMPORTANT:
+   * Let the browser handle video/Range requests directly.
+   * Do not return the full cached MP4 for a partial media request.
+   */
+  if (
+    request.headers.has("range") ||
+    request.destination === "video" ||
+    url.pathname ===
+      "/14471459_3840_2160_30fps.mp4"
+  ) {
+    return;
+  }
+
   if (url.pathname === "/api/locations") {
     event.respondWith(
       networkFirstLocations(request),
@@ -166,20 +236,21 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Main FireGuard page works offline.
   if (
     request.mode === "navigate" &&
     url.pathname === "/"
   ) {
     event.respondWith(
-      networkFirstHome(request),
+      fastHome(request, event),
     );
     return;
   }
 
-  // Admin / reports / patrol / login etc:
-  // always request latest online page.
-  // If internet disappears, return main offline dashboard.
+  /*
+   * Admin, reports, login, patrol etc.
+   * Online = latest page.
+   * Offline failure = back to cached FireGuard home.
+   */
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request).catch(async () => {
@@ -192,14 +263,17 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Next.js hashed static assets + FireGuard local assets
   if (
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname ===
-      "/14471459_3840_2160_30fps.mp4" ||
     url.pathname === "/locations-seed.json" ||
-    url.pathname === "/favicon.ico"
+    url.pathname === "/fire-bg.jpg" ||
+    url.pathname === "/favicon.ico" ||
+    url.pathname === "/fireguard-icon-512.png" ||
+    url.pathname ===
+      "/fireguard-maskable-512.png"
   ) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(
+      cacheFirst(request),
+    );
   }
 });

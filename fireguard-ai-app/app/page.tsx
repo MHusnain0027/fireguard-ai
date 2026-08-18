@@ -130,9 +130,14 @@ export default function Home() {
       }
     }
 
-    void loadLocations();
+    const locationLoadTimer = window.setTimeout(() => {
+      void loadLocations();
+    }, 120);
 
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(locationLoadTimer);
+    };
   }, []);
 
   const results = useMemo(() => {
@@ -164,38 +169,10 @@ export default function Home() {
 
   return (
     <main className="dashboard-home">
-      {/* NEW HERO BACKGROUND VIDEO */}
-     <video
-  className="dashboard-video"
-  autoPlay
-  muted
-  playsInline
-  preload="metadata"
-  poster="/fire-bg.jpg"
-  aria-hidden="true"
-  onLoadedMetadata={(e) => {
-    e.currentTarget.currentTime = 2;
-  }}
-  onCanPlay={(e) => {
-    e.currentTarget.play().catch(() => {});
-  }}
-  onEnded={(e) => {
-    e.currentTarget.currentTime = 2;
-    e.currentTarget.play().catch(() => {});
-  }}
->
-  <source
-    src="/14471459_3840_2160_30fps.mp4"
-    type="video/mp4"
-  />
-</video>
-
-      <div className="dashboard-video-overlay" aria-hidden="true" />
-
-      <div className="dashboard-content original-dashboard-content">
+<div className="dashboard-content original-dashboard-content">
         <header className="brand-header">
           <h1>FireGuard</h1>
-          <p>AI Powered Fire Safety Monitoring Dashboard • LIVE SYNC</p>
+          <p>AI Powered Fire Safety Monitoring Dashboard</p>
           <time suppressHydrationWarning>{time}</time>
         </header>
 

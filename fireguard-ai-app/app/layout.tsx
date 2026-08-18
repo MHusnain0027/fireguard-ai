@@ -52,8 +52,31 @@ export default function RootLayout({
     >
       <body>
         <PwaRegister />
-        <Navbar />
-        {children}
+
+        <video
+          className="site-background-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source
+            src="/14471459_3840_2160_30fps.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        <div
+          className="site-background-overlay"
+          aria-hidden="true"
+        />
+
+        <div className="site-page-layer">
+          <Navbar />
+          {children}
+        </div>
       </body>
     </html>
   );

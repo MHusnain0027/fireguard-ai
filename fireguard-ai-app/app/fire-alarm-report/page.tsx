@@ -214,12 +214,6 @@ export default function FireAlarmReportPage() {
 
       className="relative min-h-screen flex items-center justify-center p-5 bg-cover bg-center"
 
-      style={{
-
-        backgroundImage:"url('/fire-bg.jpg')"
-
-      }}
-
     >
 
 

@@ -344,12 +344,6 @@ export default function PatrolPage() {
 
     className="relative min-h-screen bg-cover bg-center p-6"
 
-    style={{
-
-      backgroundImage:"url('/fire-bg.jpg')"
-
-    }}
-
     >
 
 

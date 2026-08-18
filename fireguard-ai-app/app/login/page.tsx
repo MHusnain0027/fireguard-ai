@@ -128,12 +128,6 @@ export default function LoginPage() {
 
       className="relative min-h-screen flex items-center justify-center bg-cover bg-center p-5"
 
-      style={{
-
-        backgroundImage:"url('/fire-bg.jpg')"
-
-      }}
-
     >
 
 

@@ -77,7 +77,6 @@ export default function UploadPage() {
   return (
     <main
       className="relative min-h-screen bg-cover bg-center p-6"
-      style={{ backgroundImage: "url('/fire-bg.jpg')" }}
     >
       <div className="absolute inset-0 bg-black/60" />
 

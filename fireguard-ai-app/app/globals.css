@@ -48,19 +48,22 @@ body {
 .site-background-video {
   z-index: 0;
   object-fit: cover;
+  object-position: center;
+  background: #000000;
 }
 
 .site-background-overlay {
   z-index: 1;
-  background: rgba(0, 0, 0, 0.76);
+  background: rgba(0, 0, 0, 0.42);
 }
 
 .site-page-layer {
   position: relative;
   z-index: 2;
+  min-height: 100dvh;
 }
 
-.site-page-layer > main:not(.dashboard-home) {
+.site-page-layer > main {
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -185,34 +188,6 @@ input {
   position: relative;
   min-height: calc(100dvh - 58px);
   isolation: isolate;
-  background:
-    #000000 url("/fire-bg.jpg") center / cover no-repeat;
-}
-
-.dashboard-video,
-.dashboard-video-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.dashboard-video { 
-  z-index: 0; 
-  display: block; 
-  object-fit: cover; 
-  object-position: center;
-  background:
-    #000000 url("/fire-bg.jpg") center / cover no-repeat;
-  opacity: 1;
-  filter: blur(1px);
-  filter: none;
-  transform: none;
-}
-
-.dashboard-video-overlay { 
-  z-index: 1; 
   background: transparent;
 }
 
@@ -780,7 +755,4 @@ input {
     transition-duration: 0.01ms !important;
   }
 
-  .site-background-video {
-    display: none;
-  }
 }

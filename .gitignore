@@ -10,3 +10,8 @@ package-lock.json
 fireguard-twa/android.keystore
 fireguard-twa/app-release-signed.apk
 fireguard-twa/app-release-bundle.aab
+
+# FireGuard Android signing files
+fireguard-twa/android.keystore
+fireguard-twa/app-release-signed.apk
+fireguard-twa/app-release-bundle.aab

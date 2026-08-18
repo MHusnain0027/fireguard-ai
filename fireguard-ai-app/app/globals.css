@@ -756,3 +756,213 @@ input {
   }
 
 }
+
+/* VIP APP INTRO START */
+body.app-intro-active {
+  overflow: hidden;
+}
+
+.app-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fff;
+  color: #b81725;
+  isolation: isolate;
+  transition: opacity 480ms ease, visibility 480ms ease;
+}
+
+.app-intro.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.app-intro::before,
+.app-intro::after {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.app-intro::before {
+  top: -26%;
+  left: -20%;
+  width: 62vw;
+  height: 62vw;
+  background: radial-gradient(circle, rgba(226,32,47,.1), transparent 68%);
+  animation: intro-drift 3.8s ease-in-out infinite alternate;
+}
+
+.app-intro::after {
+  right: -22%;
+  bottom: -28%;
+  width: 68vw;
+  height: 68vw;
+  background: radial-gradient(circle, rgba(255,117,35,.11), transparent 68%);
+  animation: intro-drift 4.2s ease-in-out infinite alternate-reverse;
+}
+
+.app-intro__ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255,255,255,.96) 50%, transparent 70%),
+    radial-gradient(circle, #fff 0 32%, #fff9f8 68%, #fff 100%);
+  background-size: 220% 100%, 100% 100%;
+  animation: intro-sweep 2.3s ease-in-out both;
+}
+
+.app-intro__stage {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 560px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.app-intro__logo-shell {
+  position: relative;
+  z-index: 2;
+  width: min(84vw, 430px);
+  overflow: hidden;
+}
+
+.app-intro__logo {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  animation: intro-logo 1.15s cubic-bezier(.16,1,.3,1) both;
+}
+
+.app-intro__shine {
+  position: absolute;
+  inset: -25% auto -25% -45%;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.96), transparent);
+  filter: blur(3px);
+  transform: skewX(-16deg);
+  animation: intro-shine 1.35s 420ms ease-in-out both;
+}
+
+.app-intro__orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.app-intro__orbit--outer {
+  width: min(88vw, 500px);
+  height: min(88vw, 500px);
+  border: 1px solid rgba(191,21,36,.13);
+  border-top-color: rgba(225,48,42,.72);
+  animation: orbit 2.8s linear infinite;
+}
+
+.app-intro__orbit--inner {
+  width: min(72vw, 390px);
+  height: min(72vw, 390px);
+  border: 1px solid rgba(255,100,25,.12);
+  border-right-color: rgba(255,100,25,.7);
+  animation: orbit-reverse 2.2s linear infinite;
+}
+
+.app-intro__eyebrow {
+  z-index: 2;
+  margin: -62px 0 0;
+  color: #9c1a25;
+  font-size: clamp(.62rem, 2.1vw, .76rem);
+  font-weight: 800;
+  letter-spacing: .42em;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: detail-rise 620ms 720ms ease forwards;
+}
+
+.app-intro__progress {
+  z-index: 2;
+  width: min(56vw, 230px);
+  height: 3px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(167,25,36,.11);
+  opacity: 0;
+  animation: detail-rise 500ms 820ms ease forwards;
+}
+
+.app-intro__progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a91220, #e12631, #ff781f);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: progress-fill 1.18s 520ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+@keyframes intro-logo {
+  0% {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(22px) scale(.88);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes intro-shine {
+  from { left: -45%; }
+  to { left: 120%; }
+}
+
+@keyframes orbit {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes orbit-reverse {
+  from { transform: translate(-50%,-50%) rotate(360deg); }
+  to { transform: translate(-50%,-50%) rotate(0deg); }
+}
+
+@keyframes detail-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progress-fill {
+  to { transform: scaleX(1); }
+}
+
+@keyframes intro-sweep {
+  from { background-position: 120% 0, 0 0; }
+  to { background-position: -80% 0, 0 0; }
+}
+
+@keyframes intro-drift {
+  from { transform: scale(.95); }
+  to { transform: translate(5%,4%) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-intro *,
+  .app-intro::before,
+  .app-intro::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+/* VIP APP INTRO END */

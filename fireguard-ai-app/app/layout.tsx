@@ -11,6 +11,7 @@ import "./globals.css";
 
 import Navbar from "./components/Navbar";
 import PwaRegister from "./components/PwaRegister";
+import AppIntro from "./components/AppIntro";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({
     >
       <body>
         <PwaRegister />
+        <AppIntro />
 
         <video
           className="site-background-video"

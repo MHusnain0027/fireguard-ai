@@ -15,3 +15,8 @@ fireguard-twa/app-release-bundle.aab
 fireguard-twa/android.keystore
 fireguard-twa/app-release-signed.apk
 fireguard-twa/app-release-bundle.aab
+
+# Local FireGuard Android projects/builds
+FireGuard-FINAL.apk
+fireguard-twa/
+mobile-app/

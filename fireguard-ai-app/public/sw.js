@@ -1,12 +1,14 @@
-const STATIC_CACHE = "fireguard-static-v1";
-const RUNTIME_CACHE = "fireguard-runtime-v1";
-const DATA_CACHE = "fireguard-data-v1";
+const STATIC_CACHE = "fireguard-static-v2";
+const RUNTIME_CACHE = "fireguard-runtime-v2";
+const DATA_CACHE = "fireguard-data-v2";
 
 const CORE_ASSETS = [
   "/",
   "/locations-seed.json",
   "/14471459_3840_2160_30fps.mp4",
   "/favicon.ico",
+  "/fireguard-icon-512.png",
+  "/fireguard-maskable-512.png",
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mhusnain.fireguard",
+      "sha256_cert_fingerprints": [
+        "E0:88:EB:88:A2:8F:F4:A1:8B:C5:D1:8B:D9:AF:67:59:8E:2F:62:DF:91:6F:E9:DF:A3:42:E2:86:29:99:DE:C8"
+      ]
+    }
+  }
+]

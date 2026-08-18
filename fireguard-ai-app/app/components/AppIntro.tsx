@@ -44,7 +44,7 @@ export default function AppIntro() {
         <div className="app-intro__logo-shell">
           <Image
             className="app-intro__logo"
-            src="/fireguard-icon-512.png"
+            src="/facp-assistant-preloader.png"
             alt="FACP Assistant"
             width={512}
             height={512}

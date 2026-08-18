@@ -1,11 +1,12 @@
-const STATIC_CACHE = "fireguard-static-v7";
-const RUNTIME_CACHE = "fireguard-runtime-v7";
-const DATA_CACHE = "fireguard-data-v7";
+const STATIC_CACHE = "fireguard-static-v8";
+const RUNTIME_CACHE = "fireguard-runtime-v8";
+const DATA_CACHE = "fireguard-data-v8";
 
 const CORE_ASSETS = [
   "/",
   "/locations-seed.json",
   "/favicon.ico",
+  "/facp-assistant-preloader.png",
   "/fireguard-icon-512.png",
   "/fireguard-maskable-512.png",
 ];
@@ -266,6 +267,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/_next/static/") ||
     url.pathname === "/locations-seed.json" ||
     url.pathname === "/favicon.ico" ||
+    url.pathname === "/facp-assistant-preloader.png" ||
     url.pathname === "/fireguard-icon-512.png" ||
     url.pathname ===
       "/fireguard-maskable-512.png"

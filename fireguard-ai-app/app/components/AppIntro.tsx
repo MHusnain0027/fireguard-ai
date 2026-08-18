@@ -53,13 +53,7 @@ export default function AppIntro() {
           />
           <span className="app-intro__shine" />
         </div>
-
-        <p className="app-intro__eyebrow">FIRE SAFETY COMMAND</p>
-
-        <div className="app-intro__progress">
-          <span />
-        </div>
-      </div>
+</div>
     </div>
   );
 }

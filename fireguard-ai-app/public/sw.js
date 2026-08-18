@@ -1,6 +1,6 @@
-const STATIC_CACHE = "fireguard-static-v6";
-const RUNTIME_CACHE = "fireguard-runtime-v6";
-const DATA_CACHE = "fireguard-data-v6";
+const STATIC_CACHE = "fireguard-static-v7";
+const RUNTIME_CACHE = "fireguard-runtime-v7";
+const DATA_CACHE = "fireguard-data-v7";
 
 const CORE_ASSETS = [
   "/",

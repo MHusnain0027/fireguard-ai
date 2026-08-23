@@ -97,34 +97,76 @@ export default function Home() {
     useState<LocationRecord[]>([]);
 
   useEffect(() => {
+    const controller = new AbortController();
     const updateTime = () => setTime(new Date().toLocaleString());
 
     updateTime();
     const timer = window.setInterval(updateTime, 1000);
 
+    type LocationsPayload = {
+      success?: boolean;
+      message?: string;
+      locations?: LocationRecord[];
+    };
+
+    async function requestLocations(
+      url: string,
+      cache: RequestCache,
+    ) {
+      const response = await fetch(url, {
+        cache,
+        signal: controller.signal,
+      });
+      const payload =
+        (await response.json()) as LocationsPayload;
+
+      if (!response.ok || !payload.success) {
+        throw new Error(
+          payload.message ||
+            "Database connection failed",
+        );
+      }
+
+      return payload.locations ?? [];
+    }
+
     async function loadLocations() {
+      const liveRequest = requestLocations(
+        "/api/locations",
+        "no-store",
+      )
+        .then((locations) => ({ locations }))
+        .catch((error: unknown) => ({ error }));
+
+      let seedLoaded = false;
+
       try {
-        const response = await fetch("/api/locations", {
-          cache: "no-store",
-        });
+        const seedLocations = await requestLocations(
+          "/locations-seed.json",
+          "force-cache",
+        );
 
-        const payload = (await response.json()) as {
-          success?: boolean;
-          message?: string;
-          locations?: LocationRecord[];
-        };
-
-        if (!response.ok || !payload.success) {
-          throw new Error(payload.message || "Database connection failed");
+        if (!controller.signal.aborted) {
+          seedLoaded = true;
+          setDatabaseLocations(seedLocations);
+          setDatabaseError("");
         }
+      } catch {
+        // The live API below remains the source of truth when online.
+      }
 
-        setDatabaseLocations(payload.locations ?? []);
+      const liveResult = await liveRequest;
+
+      if (controller.signal.aborted) return;
+
+      if ("locations" in liveResult) {
+        setDatabaseLocations(liveResult.locations);
         setDatabaseError("");
-      } catch (error) {
+      } else if (!seedLoaded) {
         setDatabaseLocations([]);
         setDatabaseError(
-          error instanceof Error
-            ? error.message
+          liveResult.error instanceof Error
+            ? liveResult.error.message
             : "Database connection failed",
         );
       }
@@ -135,6 +177,7 @@ export default function Home() {
     }, 120);
 
     return () => {
+      controller.abort();
       window.clearInterval(timer);
       window.clearTimeout(locationLoadTimer);
     };

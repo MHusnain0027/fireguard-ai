@@ -1,9 +1,8 @@
-const STATIC_CACHE = "fireguard-static-v9";
-const RUNTIME_CACHE = "fireguard-runtime-v9";
-const DATA_CACHE = "fireguard-data-v9";
+const STATIC_CACHE = "fireguard-static-v10";
+const RUNTIME_CACHE = "fireguard-runtime-v10";
+const DATA_CACHE = "fireguard-data-v10";
 
 const CORE_ASSETS = [
-  "/",
   "/icon.png",
   "/locations-seed.json",
   "/facp-assistant-preloader.png",
@@ -11,24 +10,124 @@ const CORE_ASSETS = [
   "/fireguard-maskable-512.png",
 ];
 
+const OFFLINE_PAGES = [
+  "/",
+  "/patrol",
+  "/fire-alarm-report",
+  "/incidents",
+  "/login",
+  "/forgot-password",
+  "/admin",
+  "/admin/upload",
+];
+
+async function fetchAndCache(cache, request) {
+  const cached = await cache.match(request);
+
+  if (cached) {
+    return cached;
+  }
+
+  const response = await fetch(request, {
+    cache: "reload",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Could not cache ${request}: ${response.status}`,
+    );
+  }
+
+  await cache.put(request, response.clone());
+  return response;
+}
+
+function getStaticAssetUrls(html, pageUrl) {
+  const urls = new Set();
+  const attributePattern = /(?:src|href)=["']([^"']+)["']/gi;
+
+  for (const match of html.matchAll(attributePattern)) {
+    const value = match[1].replaceAll("&amp;", "&");
+
+    try {
+      const url = new URL(value, pageUrl);
+
+      if (
+        url.origin === self.location.origin &&
+        url.pathname.startsWith("/_next/static/")
+      ) {
+        urls.add(url.href);
+      }
+    } catch {
+      // Ignore invalid or non-HTTP attributes.
+    }
+  }
+
+  return [...urls];
+}
+
+async function cachePageAndShell(
+  cache,
+  cacheKey,
+  response,
+  pageUrl,
+) {
+  const html = await response.clone().text();
+  const assetUrls = getStaticAssetUrls(html, pageUrl);
+
+  await Promise.all(
+    assetUrls.map((assetUrl) =>
+      fetchAndCache(cache, assetUrl),
+    ),
+  );
+
+  await cache.put(cacheKey, response.clone());
+}
+
+async function precachePage(cache, pathname) {
+  const response = await fetch(pathname, {
+    cache: "reload",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Could not cache ${pathname}: ${response.status}`,
+    );
+  }
+
+  await cachePageAndShell(
+    cache,
+    pathname,
+    response,
+    new URL(pathname, self.location.origin),
+  );
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(STATIC_CACHE);
 
-      for (const asset of CORE_ASSETS) {
-        try {
-          const response = await fetch(asset, {
-            cache: "reload",
-          });
+      await Promise.all(
+        CORE_ASSETS.map((asset) =>
+          fetchAndCache(cache, asset),
+        ),
+      );
 
-          if (response.ok) {
-            await cache.put(asset, response);
-          }
+      // The home page and its exact hashed Next.js CSS/JS are required.
+      // If this fails, keep the previous worker instead of activating a
+      // half-filled offline cache.
+      await precachePage(cache, "/");
+
+      // These routes improve offline coverage but must not block an update.
+      for (const page of OFFLINE_PAGES.slice(1)) {
+        try {
+          await precachePage(cache, page);
         } catch (error) {
           console.warn(
-            "Could not precache FireGuard asset:",
-            asset,
+            "Could not precache optional FireGuard page:",
+            page,
+            error,
           );
         }
       }
@@ -88,7 +187,7 @@ async function networkFirstLocations(request) {
     }
 
     return response;
-  } catch (error) {
+  } catch {
     const cached = await cache.match(request);
 
     if (cached) {
@@ -121,8 +220,8 @@ async function networkFirstLocations(request) {
 }
 
 async function revalidateHome(request, cached) {
-  const cache = await caches.open(RUNTIME_CACHE);
-
+  const runtime = await caches.open(RUNTIME_CACHE);
+  const staticCache = await caches.open(STATIC_CACHE);
   const response = await fetch(request, {
     cache: "no-store",
   });
@@ -131,13 +230,17 @@ async function revalidateHome(request, cached) {
     return response;
   }
 
-  const oldEtag =
-    cached?.headers.get("etag") || "";
+  const oldEtag = cached?.headers.get("etag") || "";
+  const newEtag = response.headers.get("etag") || "";
 
-  const newEtag =
-    response.headers.get("etag") || "";
-
-  await cache.put("/", response.clone());
+  // Cache the new build's hashed CSS/JS before exposing its HTML.
+  await cachePageAndShell(
+    staticCache,
+    "/",
+    response,
+    request.url,
+  );
+  await runtime.put("/", response.clone());
 
   if (
     cached &&
@@ -153,11 +256,9 @@ async function revalidateHome(request, cached) {
 
 async function fastHome(request, event) {
   const runtime = await caches.open(RUNTIME_CACHE);
-
   const cached =
     (await runtime.match("/")) ||
     (await caches.match("/"));
-
   const networkPromise = revalidateHome(
     request,
     cached,
@@ -167,13 +268,12 @@ async function fastHome(request, event) {
     event.waitUntil(
       networkPromise.catch(() => undefined),
     );
-
     return cached;
   }
 
   try {
     return await networkPromise;
-  } catch (error) {
+  } catch {
     return (
       (await caches.match("/")) ||
       Response.error()
@@ -181,22 +281,44 @@ async function fastHome(request, event) {
   }
 }
 
-async function cacheFirst(request) {
-  const cache = await caches.open(RUNTIME_CACHE);
+async function networkFirstPage(request) {
+  const runtime = await caches.open(RUNTIME_CACHE);
 
-  const cached = await cache.match(request);
+  try {
+    const response = await fetch(request);
+
+    if (response.ok) {
+      await runtime.put(
+        new URL(request.url).pathname,
+        response.clone(),
+      );
+    }
+
+    return response;
+  } catch {
+    const pathname = new URL(request.url).pathname;
+
+    return (
+      (await runtime.match(pathname)) ||
+      (await caches.match(pathname)) ||
+      (await caches.match("/")) ||
+      Response.error()
+    );
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
 
   if (cached) {
     return cached;
   }
 
+  const cache = await caches.open(RUNTIME_CACHE);
   const response = await fetch(request);
 
   if (response.ok) {
-    await cache.put(
-      request,
-      response.clone(),
-    );
+    await cache.put(request, response.clone());
   }
 
   return response;
@@ -215,11 +337,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /*
-   * IMPORTANT:
-   * Let the browser handle video/Range requests directly.
-   * Do not return the full cached MP4 for a partial media request.
-   */
+  // Let the browser handle video and Range requests directly. Caching the
+  // full 4.7 MB MP4 here would delay startup and break partial media fetches.
   if (
     request.headers.has("range") ||
     request.destination === "video" ||
@@ -246,34 +365,22 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /*
-   * Admin, reports, login, patrol etc.
-   * Online = latest page.
-   * Offline failure = back to cached FireGuard home.
-   */
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
-        return (
-          (await caches.match("/")) ||
-          Response.error()
-        );
-      }),
+      networkFirstPage(request),
     );
     return;
   }
 
   if (
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname === "/icon.png" ||
-    url.pathname === "/locations-seed.json" ||
-    url.pathname === "/facp-assistant-preloader.png" ||
-    url.pathname === "/fireguard-icon-512.png" ||
-    url.pathname ===
-      "/fireguard-maskable-512.png"
+    url.pathname === "/_next/image" ||
+    request.destination === "style" ||
+    request.destination === "script" ||
+    request.destination === "font" ||
+    request.destination === "image" ||
+    CORE_ASSETS.includes(url.pathname)
   ) {
-    event.respondWith(
-      cacheFirst(request),
-    );
+    event.respondWith(cacheFirst(request));
   }
 });

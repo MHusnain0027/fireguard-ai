@@ -12,6 +12,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import PwaRegister from "./components/PwaRegister";
 import AppIntro from "./components/AppIntro";
+import BackgroundVideo from "./components/BackgroundVideo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,20 +56,7 @@ export default function RootLayout({
         <PwaRegister />
         <AppIntro />
 
-        <video
-          className="site-background-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source
-            src="/14471459_3840_2160_30fps.mp4"
-            type="video/mp4"
-          />
-        </video>
+        <BackgroundVideo />
 
         <div
           className="site-background-overlay"

@@ -50,10 +50,11 @@ export default function AppIntro() {
             height={512}
             sizes="(max-width: 512px) 84vw, 430px"
             priority
+            unoptimized
           />
           <span className="app-intro__shine" />
         </div>
-</div>
+      </div>
     </div>
   );
 }

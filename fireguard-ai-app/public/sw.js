@@ -1,6 +1,6 @@
-const STATIC_CACHE = "fireguard-static-v10";
-const RUNTIME_CACHE = "fireguard-runtime-v10";
-const DATA_CACHE = "fireguard-data-v10";
+const STATIC_CACHE = "fireguard-static-v11";
+const RUNTIME_CACHE = "fireguard-runtime-v11";
+const DATA_CACHE = "fireguard-data-v11";
 
 const CORE_ASSETS = [
   "/icon.png",
@@ -132,6 +132,8 @@ self.addEventListener("install", (event) => {
         }
       }
 
+      // Warm the complete snapshot on first install as well as on page fetches.
+      await networkFirstLocations(new Request(new URL("/api/locations", self.location.origin)));
       await self.skipWaiting();
     })(),
   );
@@ -178,43 +180,30 @@ async function notifyContentUpdated() {
 
 async function networkFirstLocations(request) {
   const cache = await caches.open(DATA_CACHE);
-
+  const cacheKey = "/api/locations";
   try {
-    const response = await fetch(request);
-
-    if (response.ok) {
-      await cache.put(request, response.clone());
+    const response = await fetch(request, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(28000),
+    });
+    if (!response.ok) throw new Error("Locations API unavailable");
+    const payload = await response.clone().json();
+    if (payload.success !== true || payload.complete !== true ||
+        !Array.isArray(payload.locations) || payload.total !== payload.locations.length) {
+      throw new Error("Incomplete locations response");
     }
-
+    // A cache write failure must not hide a successful live response.
+    try { await cache.put(cacheKey, response.clone()); } catch { /* Storage full. */ }
     return response;
   } catch {
-    const cached = await cache.match(request);
-
-    if (cached) {
-      return cached;
-    }
-
-    const seed = await caches.match(
-      "/locations-seed.json",
-    );
-
-    if (seed) {
-      return seed;
-    }
-
+    // HTTP failures (including a paused database) also use the saved snapshot.
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+    const seed = await caches.match("/locations-seed.json");
+    if (seed) return seed;
     return new Response(
-      JSON.stringify({
-        success: false,
-        total: 0,
-        locations: [],
-        message: "Offline database unavailable",
-      }),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
+      JSON.stringify({ success: false, total: 0, locations: [], message: "Offline database unavailable" }),
+      { status: 503, headers: { "Content-Type": "application/json" } },
     );
   }
 }

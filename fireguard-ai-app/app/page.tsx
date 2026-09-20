@@ -93,6 +93,7 @@ export default function Home() {
   const [mode, setMode] = useState<SearchMode>("all");
   const [time, setTime] = useState("");
   const [databaseError, setDatabaseError] = useState("");
+  const [syncStatus, setSyncStatus] = useState("Syncing locations...");
   const [databaseLocations, setDatabaseLocations] =
     useState<LocationRecord[]>([]);
 
@@ -105,72 +106,108 @@ export default function Home() {
 
     type LocationsPayload = {
       success?: boolean;
+      complete?: boolean;
+      total?: number;
       message?: string;
       locations?: LocationRecord[];
     };
+    // Keep this name in sync with public/sw.js. Independent of app-shell versions.
+    const dataCacheName = "fireguard-data-v11";
+    let loading = false;
+    let hasLocations = false;
+    let hasCompleteSnapshot = false;
 
-    async function requestLocations(
-      url: string,
-      cache: RequestCache,
-    ) {
-      const response = await fetch(url, {
-        cache,
-        signal: controller.signal,
-      });
-      const payload =
-        (await response.json()) as LocationsPayload;
-
-      if (!response.ok || !payload.success) {
-        throw new Error(
-          payload.message ||
-            "Database connection failed",
-        );
-      }
-
-      return payload.locations ?? [];
+    function isValid(payload: LocationsPayload) {
+      return payload.success === true && Array.isArray(payload.locations) &&
+        payload.total === payload.locations.length;
     }
 
     async function loadLocations() {
-      const liveRequest = requestLocations(
-        "/api/locations",
-        "no-store",
-      )
-        .then((locations) => ({ locations }))
-        .catch((error: unknown) => ({ error }));
-
-      let seedLoaded = false;
-
+      if (loading || controller.signal.aborted) return;
+      loading = true;
       try {
-        const seedLocations = await requestLocations(
-          "/locations-seed.json",
-          "force-cache",
-        );
-
-        if (!controller.signal.aborted) {
-          seedLoaded = true;
-          setDatabaseLocations(seedLocations);
-          setDatabaseError("");
+        // Read the saved full snapshot before considering the bundled seed.
+        if (!hasCompleteSnapshot) {
+          try {
+            const cached = await (await caches.open(dataCacheName)).match("/api/locations");
+            const payload = cached ? await cached.json() as LocationsPayload : null;
+            if (payload && isValid(payload) && payload.complete && !controller.signal.aborted) {
+              setDatabaseLocations(payload.locations!);
+              hasLocations = true;
+              hasCompleteSnapshot = true;
+              setSyncStatus(`${payload.total} locations saved for offline use`);
+            }
+          } catch {
+            // Storage may be unavailable; online loading still works.
+          }
         }
-      } catch {
-        // The live API below remains the source of truth when online.
-      }
 
-      const liveResult = await liveRequest;
+        if (!hasLocations) {
+          try {
+            const seed = await fetch("/locations-seed.json", {
+              cache: "force-cache",
+              signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
+            });
+            const payload = await seed.json() as LocationsPayload;
+            if (seed.ok && isValid(payload) && !controller.signal.aborted) {
+              setDatabaseLocations(payload.locations!);
+              hasLocations = true;
+              setSyncStatus("Basic offline data loaded. Connect to sync all locations.");
+            }
+          } catch {
+            // The live API remains the source of truth.
+          }
+        }
 
-      if (controller.signal.aborted) return;
-
-      if ("locations" in liveResult) {
-        setDatabaseLocations(liveResult.locations);
+        const response = await fetch("/api/locations", {
+          cache: "no-store",
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30000)]),
+        });
+        const payload = await response.json() as LocationsPayload;
+        if (!response.ok || !isValid(payload) || !payload.complete) {
+          throw new Error(payload.message || "Full locations sync unavailable");
+        }
+        if (controller.signal.aborted) return;
+        setDatabaseLocations(payload.locations!);
         setDatabaseError("");
-      } else if (!seedLoaded) {
-        setDatabaseLocations([]);
-        setDatabaseError(
-          liveResult.error instanceof Error
-            ? liveResult.error.message
-            : "Database connection failed",
-        );
+        hasLocations = true;
+        hasCompleteSnapshot = true;
+        try {
+          // Save even on the first visit before the service worker controls this tab.
+          const cache = await caches.open(dataCacheName);
+          await cache.put("/api/locations", new Response(JSON.stringify(payload), {
+            headers: { "Content-Type": "application/json" },
+          }));
+          if (!controller.signal.aborted) {
+            setSyncStatus(`${payload.total} locations saved for offline use`);
+          }
+        } catch {
+          if (!controller.signal.aborted) {
+            setSyncStatus("Locations loaded. Offline saving unavailable in this browser.");
+          }
+        }
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        if (!hasLocations) {
+          setDatabaseError(error instanceof Error ? error.message : "Database connection failed");
+          setSyncStatus("Connect to the internet to sync locations.");
+        } else if (!hasCompleteSnapshot) {
+          setSyncStatus("Basic offline data only. Full sync pending; reconnect or retry later.");
+        }
+      } finally {
+        loading = false;
       }
     }
+
+    const reconnect = () => { void loadLocations(); };
+    const refreshVisible = () => {
+      if (document.visibilityState === "visible") reconnect();
+    };
+    window.addEventListener("online", reconnect);
+    document.addEventListener("visibilitychange", refreshVisible);
+    const syncTimer = window.setInterval(() => {
+      if (navigator.onLine && document.visibilityState === "visible") reconnect();
+    }, 5 * 60 * 1000);
 
     const locationLoadTimer = window.setTimeout(() => {
       void loadLocations();
@@ -180,13 +217,16 @@ export default function Home() {
       controller.abort();
       window.clearInterval(timer);
       window.clearTimeout(locationLoadTimer);
+      window.clearInterval(syncTimer);
+      window.removeEventListener("online", reconnect);
+      document.removeEventListener("visibilitychange", refreshVisible);
     };
   }, []);
 
   const results = useMemo(() => {
     const value = normalizeCode(search);
 
-    if (!value) return [];
+    if (!value) return databaseLocations;
 
     return databaseLocations.filter((item) => {
       const code = normalizeCode(getCode(item));
@@ -273,14 +313,14 @@ export default function Home() {
             </div>
           </div>
 
+          <p className="results-found" role="status">{syncStatus}</p>
+
           <div
-            className={`results-panel ${search.trim() ? "has-query" : ""}`}
+            className={`results-panel ${results.length > 0 ? "has-query" : ""}`}
             aria-live="polite"
           >
             {databaseError ? (
               <p className="database-error">Database connection failed.</p>
-            ) : !search.trim() ? (
-              <p>Type something to search...</p>
             ) : results.length === 0 ? (
               <p>No matching FACP location found.</p>
             ) : (
